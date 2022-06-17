@@ -5,7 +5,7 @@
   "categories": [
     "images"
   ],
-  "description": "Filter images and provide results ",
+  "description": "Filters images and provides results in selected format",
   "docker_image": "supervisely/base-py-sdk:6.23.1",
   "instance_version": "6.4.57",
   "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",

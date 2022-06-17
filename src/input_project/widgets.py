@@ -13,4 +13,4 @@ reselect_project_button = ElementButton(text='<i style="margin-right: 5px" class
 
 download_project_progress = SlyTqdm(message='')
 
-project_downloaded_done_label = DoneLabel()
+project_downloaded_done_label = DoneLabel(text="Project downloaded")

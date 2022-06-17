@@ -32,10 +32,8 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
 
         card_functions.cache_images_info(g.project['project_id'])
 
-        card_widgets.project_downloaded_done_label.text = 'Project downloaded'
-
         DataJson()['current_step'] += 1
-        state['collapsed_steps']["connect_to_det_model"] = False
+        state['collapsed_steps']["filtering"] = False
     except Exception as ex:
         card_widgets.project_selector.disabled = False
 
