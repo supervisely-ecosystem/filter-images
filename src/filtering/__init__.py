@@ -5,6 +5,19 @@ from src.filtering.functions import *
 from src.filtering.widgets import *
 
 
+DataJson()['available_classes'] = [{
+    'name': 'Any class',
+    'id': None
+}]
+DataJson()['available_annotators'] = [{
+    'name': 'Any annotator',
+    'id': None
+}]
+DataJson()['available_tags'] = [{
+    'name': 'Any tag',
+    'id': None
+}]
+
 DataJson()['issue_statuses'] = [
     {
         "name": "All",
@@ -19,6 +32,7 @@ DataJson()['issue_statuses'] = [
         "value": "closed"
     }
 ]
+
 DataJson()['available_filters'] = [
     # TODO: empty if None
     {   
@@ -34,7 +48,8 @@ DataJson()['available_filters'] = [
         "data": {
             "tagId": None,
             "include": True,
-            "value": None
+            "value": None,
+            "tagHasValue": False
         }
     },
     {
@@ -43,7 +58,8 @@ DataJson()['available_filters'] = [
         "data": {
             "tagId": None,
             "include": False,
-            "value": None
+            "value": None,
+            "tagHasValue": False
         }
     },
     {
@@ -55,7 +71,8 @@ DataJson()['available_filters'] = [
             "tagClassId": None,
             "tagId": None,
             "include": True,
-            "value": None
+            "value": None,
+            "tagHasValue": False
         }
     },
     {
@@ -67,7 +84,8 @@ DataJson()['available_filters'] = [
             "tagClassId": None,
             "tagId": None,
             "include": False,
-            "value": None
+            "value": None,
+            "tagHasValue": False
         }
     },
     {
@@ -151,8 +169,24 @@ DataJson()['available_presets'] = [
             }
         ]
     },
+    {
+        "name": "Has issues",
+        "filters": [
+            {
+                "name": "With issues",
+                "type": "issues_count",
+                "data": {
+                    "from": 1,
+                    "to": 9999,
+                    "status": "open"
+                }
+            }
+        ]
+    }
 ]
 
 StateJson()['current_preset'] = DataJson()['available_presets'][0]["name"] # all images
 
 StateJson()['selected_filters'] = []
+StateJson()['objects_count_buttons_visible'] = []
+StateJson()['filter_to_change'] = None

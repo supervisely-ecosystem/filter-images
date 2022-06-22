@@ -26,7 +26,7 @@ app = FastAPI()
 sly_app = create()
 
 TEAM_ID = int(os.getenv('context.teamId'))
-USER_ID = 1 # TODO: get
+USER_ID = int(os.getenv('context.userId'))
 WORKSPACE_ID = int(os.getenv('context.workspaceId'))
 PROJECT_ID = int(os.getenv('modal.state.slyProjectId')) if os.getenv('modal.state.slyProjectId').isnumeric() else None
 

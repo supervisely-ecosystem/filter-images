@@ -16,8 +16,25 @@ def fill_table(images_list):
 def show_preview():
     pass
 
-
-def remove_filter(state, idx):
-    state["selected_filters"].pop(idx)
-    run_sync(state.synchronize_changes())
-
+def get_available_classes_and_tags(project_meta):
+    for class_obj in project_meta["classes"]:
+        DataJson()['available_classes'].append({
+            'name': class_obj['title'], 
+            'id': class_obj['id']
+        })
+    for tag_obj in project_meta["tags"]:
+        DataJson()['available_tags'].append({
+            'name': tag_obj['name'], 
+            'id': tag_obj['id'],
+            'value_type': tag_obj['value_type'],
+            'applicable_type': tag_obj['applicable_type']
+        })
+    run_sync(DataJson().synchronize_changes())
+    
+def get_available_annotators(team_users):
+    for user in team_users:
+        DataJson()['available_annotators'].append({
+            'name': user.login, 
+            'id': user.id
+        })
+    run_sync(DataJson().synchronize_changes())
