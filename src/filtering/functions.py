@@ -1,11 +1,36 @@
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import run_sync
 
-def build_query_from_filters():
-    query = {}
-    return query
+import src.sly_globals as g
 
-def get_images(query):
+def build_queries_from_filters(state):
+    queries = []
+    datasets = g.project['dataset_ids']
+    for dataset in datasets:
+        query = {
+            'datasetId': dataset
+        }
+        query['filters'] = []
+        for filter in state['selected_filters']:
+            filter_data = {}
+            filter_data['type'] = filter['type']
+            filter_data['data'] = filter['data']
+            if filter['type'] == 'images_filename' and filter['data']['value'] is None:
+                filter_data['data'] = {}
+            elif filter['type'] == 'objects_annotator' and filter['data']['userId'] is None:
+                filter_data['data'] = {}
+            elif filter['type'] == 'tagged_by_annotator' and filter['data']['userId'] is None:
+                filter_data['data'] = {}
+            if 'tagHasValue' in filter_data['data'].keys():
+                del filter_data['data']['tagHasValue']
+            query['filters'].append(filter_data)
+        queries.append(query)
+
+    return queries
+
+def get_images(queries):
+    for query in queries:
+        pass
     images_list = []
     return images_list
 

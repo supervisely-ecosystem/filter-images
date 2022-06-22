@@ -34,7 +34,6 @@ DataJson()['issue_statuses'] = [
 ]
 
 DataJson()['available_filters'] = [
-    # TODO: empty if None
     {   
         "name": "By Filename",
         "type": "images_filename",
@@ -97,7 +96,6 @@ DataJson()['available_filters'] = [
             "classId": None
         }
     },
-    # TODO: empty if None
     {
         "name": "Objects by annotator",
         "type": "objects_annotator",
@@ -107,7 +105,6 @@ DataJson()['available_filters'] = [
             "userId": None
         }
     },
-    # TODO: empty if None
     {
         "name": "Tagged by annotator",
         "type": "tagged_by_annotator",

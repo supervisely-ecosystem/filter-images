@@ -13,7 +13,7 @@ import src.sly_globals as g
 
 @card_widgets.apply_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def apply_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    query = card_functions.build_query_from_filters()
+    query = card_functions.build_queries_from_filters(state)
     images_list = card_functions.get_images(query)
     card_functions.fill_table(images_list)
     card_functions.show_preview()
