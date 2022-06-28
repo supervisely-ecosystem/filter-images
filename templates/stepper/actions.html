@@ -1,0 +1,23 @@
+<sly-card title="Using filtered images" 
+          subtitle="select input project to label"
+          :options="{collapsable: true}"
+          :collapsed.sync="state.collapsed_steps.actions"
+          :disabled="{disabled: data.current_step < data.steps.actions, message: 'complete previous steps to unlock'}">
+    Select action to apply to filtered images: 
+    <el-select
+        v-model="state.selected_action"
+        :disabled="data.current_step > data.steps.actions"
+    >
+        <el-option
+            v-for="item in data.available_actions"
+            :label="item.name"
+            :key="item.name"
+            :value="item.name">
+        </el-option>
+    </el-select>
+    <el-button
+        type="primary"
+        @click="post('/apply_action/');">
+        APPLY
+    </el-button>
+</sly-card>

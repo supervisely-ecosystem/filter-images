@@ -11,22 +11,24 @@ from supervisely.app.widgets import ElementButton
 
 import src.sly_globals as g
 
-@card_widgets.apply_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
-def apply_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+@g.app.post('/apply_filters/')
+def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     query = card_functions.build_queries_from_filters(state)
     images_list = card_functions.get_images(query)
     card_functions.fill_table(images_list)
-    card_functions.show_preview()
+    card_functions.show_preview(images_list)
+    run_sync(state.synchronize_changes())
+    run_sync(DataJson().synchronize_changes())
 
-@card_widgets.add_filter_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
-def add_filter_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+@g.app.post('/add_filter/')
+def add_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'].append(DataJson()['default_filter'])
     state['objects_count_buttons_visible'].append(True)
     state['current_preset'] = 'Custom'
     run_sync(state.synchronize_changes())
 
-@card_widgets.remove_all_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
-def remove_all_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+@g.app.post('/remove_all_filters/')
+def remove_all_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'] = []
     state['objects_count_buttons_visible'] = []
     state['current_preset'] = DataJson()['available_presets'][0]['name'] # All images

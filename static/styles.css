@@ -1,3 +1,40 @@
-.example-style {
-    color: white;
+#filtering-layout {
+    width: 100%;
+}
+
+.filter-line {
+    background-color: rgb(240, 250, 255);
+    margin: 5px;
+    padding: 10px;
+    
+}
+
+.filter-fields > .el-select, .filter-fields > .el-input, .filter-fields > .el-input-number {
+    margin:5px;
+    max-width:60%;
+}
+
+.filter-data > .el-select, .filter-data > .el-input, .filter-data > .el-input-number {
+    margin:5px;
+    max-width:60%;
+}
+
+.filter-limits > .el-select, .filter-limits > .el-input, .filter-limits > .el-input-number {
+    margin:5px;
+    max-width:60%;
+}
+
+.filter-text {
+    float:left;
+    width: 20%;
+    margin-top: 15px;
+}
+
+.filter-fields {
+    float:left;
+    width: 60%;
+}
+
+.filter-remove {
+    width: 10%;
 }

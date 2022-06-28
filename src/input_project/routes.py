@@ -4,7 +4,7 @@ import supervisely
 from supervisely import logger
 
 import src.input_project.widgets as card_widgets
-import src.input_project.functions as card_functions
+import src.filtering.functions as filtering_functions
 
 from supervisely.app import DataJson
 from supervisely.app.fastapi import run_sync
@@ -21,16 +21,19 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     run_sync(DataJson().synchronize_changes())
 
     try:
-        card_functions.download_project(project_selector_widget=card_widgets.project_selector,
-                                        state=state, project_dir=g.project_dir)
-
         g.project['workspace_id'] = card_widgets.project_selector.get_selected_workspace_id(state)
         g.project['project_id'] = card_widgets.project_selector.get_selected_project_id(state)
         g.project['dataset_ids'] = card_widgets.project_selector.get_selected_datasets(state)
-        project_info = g.api.project.get_info_by_id(g.project['project_id'])
-        state['outputProject'] = f"{project_info.name}_pipeline"
-
-        card_functions.cache_images_info(g.project['project_id'])
+        if not g.project['dataset_ids']:
+            g.project['dataset_ids'] = [dataset.id for dataset in g.api.dataset.get_list(g.project['project_id'])]
+    
+        datasets = g.api.dataset.get_list(g.project['project_id'])
+        g.ds_id_to_name = {dataset.id: dataset.name for dataset in datasets}
+        project_meta = g.api.project.get_meta(g.project['project_id'])
+        team_users = g.api.user.get_team_members(g.TEAM_ID)
+        
+        filtering_functions.get_available_classes_and_tags(project_meta)
+        filtering_functions.get_available_annotators(team_users)
 
         DataJson()['current_step'] += 1
         state['collapsed_steps']["filtering"] = False
