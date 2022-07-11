@@ -8,6 +8,7 @@ import src.filtering.widgets as card_widgets
 import random
 import pandas as pd
 
+
 def build_queries_from_filters(state):
     queries = []
     datasets = g.project['dataset_ids']
@@ -33,13 +34,15 @@ def build_queries_from_filters(state):
 
     return queries
 
+
 def get_images(queries):
     images_list = []
     for query in queries:
         ds_images = g.api.image.get_filtered_list(query["datasetId"], query["filters"])
         images_list.extend(ds_images)
-    
+
     return images_list
+
 
 def fill_table(images_list):
     content = []
@@ -58,6 +61,7 @@ def fill_table(images_list):
     else:
         card_widgets.images_table.read_pandas(pd.DataFrame(data=[], columns=[]))
 
+
 def show_preview(images_list, n_samples=6):
     card_widgets.images_gallery.loading = True
     card_widgets.images_gallery.clean_up()
@@ -68,6 +72,7 @@ def show_preview(images_list, n_samples=6):
         img_url = image.full_storage_url
         if img_url is None:
             continue
+
         # annotation = 
 
         card_widgets.images_gallery.append(
@@ -75,28 +80,30 @@ def show_preview(images_list, n_samples=6):
             title=image.name,
             # 'annotation': annotation
         )
-    
+
     card_widgets.images_gallery.loading = False
+
 
 def get_available_classes_and_tags(project_meta):
     for class_obj in project_meta["classes"]:
         DataJson()['available_classes'].append({
-            'name': class_obj['title'], 
+            'name': class_obj['title'],
             'id': class_obj['id']
         })
     for tag_obj in project_meta["tags"]:
         DataJson()['available_tags'].append({
-            'name': tag_obj['name'], 
+            'name': tag_obj['name'],
             'id': tag_obj['id'],
             'value_type': tag_obj['value_type'],
             'applicable_type': tag_obj['applicable_type']
         })
     run_sync(DataJson().synchronize_changes())
-    
+
+
 def get_available_annotators(team_users):
     for user in team_users:
         DataJson()['available_annotators'].append({
-            'name': user.login, 
+            'name': user.login,
             'id': user.id
         })
     run_sync(DataJson().synchronize_changes())

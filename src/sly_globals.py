@@ -9,7 +9,7 @@ import supervisely as sly
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import create, Jinja2Templates
 from collections import OrderedDict
-# from dotenv import load_dotenv # TODO: debug
+from dotenv import load_dotenv # TODO: debug
 
 app_root_directory = str(Path(__file__).parent.absolute().parents[0])
 logger.info(f"App root directory: {app_root_directory}")
@@ -17,8 +17,8 @@ app_data_dir = os.path.join(app_root_directory, 'tempfiles')
 app_cache_dir = os.path.join(app_data_dir, 'cache')
 
 # TODO: for debug
-# load_dotenv(os.path.join(app_root_directory, "debug.env"))
-# load_dotenv(os.path.join(app_root_directory, "secret_debug.env"), override=True)
+load_dotenv(os.path.join(app_root_directory, "debug.env"))
+load_dotenv(os.path.join(app_root_directory, "secret_debug.env"), override=True)
 
 api = sly.Api.from_env()
 file_cache = sly.FileCache(name="FileCache", storage_root=app_cache_dir)
