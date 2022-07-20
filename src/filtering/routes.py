@@ -4,6 +4,7 @@ import supervisely
 
 import src.filtering.widgets as card_widgets
 import src.filtering.functions as card_functions
+import src.images_table.functions as table_functions
 
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import run_sync
@@ -14,10 +15,23 @@ import src.sly_globals as g
 
 @g.app.post('/apply_filters/')
 def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    state['filtering'] = True
+    run_sync(state.synchronize_changes())
     query = card_functions.build_queries_from_filters(state)
     images_list = card_functions.get_images(query)
-    card_functions.fill_table(images_list)
-    card_functions.show_preview(images_list)
+    DataJson()['images_list'] = images_list
+    table_functions.fill_table(images_list)
+    DataJson()['available_datasets'] = [ds.name for ds in g.api.dataset.get_list(g.project["project_id"])]
+    for i in range(len(DataJson()['available_datasets']) + 1):
+        if f'ds{i}' not in DataJson()['available_datasets']:
+            state['new_dataset'] = f'ds{i}'
+            break
+    state['selected_dataset'] = DataJson()['available_datasets'][0]
+    state['filtering'] = False
+
+    DataJson()['current_step'] += 2
+    state['collapsed_steps']["images_table"] = False
+    state['collapsed_steps']["actions"] = False
     run_sync(state.synchronize_changes())
     run_sync(DataJson().synchronize_changes())
 

@@ -1,23 +1,60 @@
 <sly-card title="Using filtered images" 
-          subtitle="select input project to label"
+          subtitle="select action to apply to filtered images"
           :options="{collapsable: true}"
           :collapsed.sync="state.collapsed_steps.actions"
           :disabled="{disabled: data.current_step < data.steps.actions, message: 'complete previous steps to unlock'}">
-    Select action to apply to filtered images: 
+
+    <div>Select action:</div>
     <el-select
         v-model="state.selected_action"
+        style="width:300px;margin:5px"
         :disabled="data.current_step > data.steps.actions"
     >
         <el-option
             v-for="item in data.available_actions"
-            :label="item.name"
-            :key="item.name"
-            :value="item.name">
+            :label="item"
+            :key="item"
+            :value="item">
         </el-option>
     </el-select>
+
+    <div v-if="state.selected_action === 'Copy to existing dataset' ||
+               state.selected_action === 'Move to existing dataset'">
+        <div>Select dataset:</div>
+        <el-select
+            style="width:300px;margin:5px"
+            v-model="state.selected_dataset"
+        >
+            <el-option
+                    v-for="item in data.available_datasets"
+                    :label="item"
+                    :key="item"
+                    :value="item">
+            </el-option>
+        </el-select>
+    </div>
+
+    <div v-else-if="state.selected_action === 'Copy to new dataset' ||
+                    state.selected_action === 'Move to new dataset'">
+        <div>New dataset name:</div>
+        <el-input
+            style="width:300px;margin:5px"
+            v-model="state.new_dataset"
+        ></el-input>
+    </div>
+
+    <div v-else-if="state.selected_action === 'Assign tag'">
+        <div>Tag name:</div>
+        <el-input
+            style="width:300px;margin:5px"
+            v-model="state.tag_to_add"
+        ></el-input>
+    </div>
+
     <el-button
         type="primary"
-        @click="post('/apply_action/');">
+        @click="post('/apply_action/');"
+        :loading="state.action_process">
         APPLY
     </el-button>
 </sly-card>

@@ -1,5 +1,6 @@
 <div id="filtering-layout">
     <sly-card title="Filtering settings"
+              subtitle="assign filters to select the data"
               class="mr15"
               :options="{collapsable: true}"
               :collapsed.sync="state.collapsed_steps.filtering"
@@ -266,6 +267,7 @@
             <el-button
                     :disabled="data.current_step > data.steps.filtering"
                     type="primary"
+                    :loading="state.filtering"
                     @click="post('/apply_filters/');">
                 APPLY FILTERS
             </el-button>

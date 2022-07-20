@@ -1,12 +1,7 @@
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import run_sync
-import supervisely as sly
 
 import src.sly_globals as g
-import src.filtering.widgets as card_widgets
-
-import random
-import pandas as pd
 
 
 def build_queries_from_filters(state):
@@ -42,46 +37,6 @@ def get_images(queries):
         images_list.extend(ds_images)
 
     return images_list
-
-
-def fill_table(images_list):
-    content = []
-    for image_info in images_list:
-        content.append({
-            'dataset name': g.ds_id_to_name[image_info.dataset_id],
-            'item name': image_info.name,
-            'image': f'<a href="{image_info.full_storage_url}" rel="noopener noreferrer" target="_blank">open <i class="zmdi zmdi-open-in-new" style="margin-left: 5px"></i></a>',
-            'objects number': image_info.labels_count,
-            'height': image_info.height,
-            'width': image_info.width
-        })
-    if len(content) > 0:
-        card_widgets.images_table.read_pandas(pd.DataFrame(data=[list(row.values()) for row in content],
-                                                           columns=list(content[0].keys())))
-    else:
-        card_widgets.images_table.read_pandas(pd.DataFrame(data=[], columns=[]))
-
-
-def show_preview(images_list, n_samples=6):
-    card_widgets.images_gallery.loading = True
-    card_widgets.images_gallery.clean_up()
-    random.shuffle(images_list)
-    images_batch = images_list[:n_samples]
-
-    for image in images_batch:
-        img_url = image.full_storage_url
-        if img_url is None:
-            continue
-
-        # annotation = 
-
-        card_widgets.images_gallery.append(
-            image_url=img_url,
-            title=image.name,
-            # 'annotation': annotation
-        )
-
-    card_widgets.images_gallery.loading = False
 
 
 def get_available_classes_and_tags(project_meta):

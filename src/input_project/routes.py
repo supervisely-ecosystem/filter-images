@@ -24,12 +24,17 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
         g.project['workspace_id'] = card_widgets.project_selector.get_selected_workspace_id(state)
         g.project['project_id'] = card_widgets.project_selector.get_selected_project_id(state)
         g.project['dataset_ids'] = card_widgets.project_selector.get_selected_datasets(state)
+        # TODO: fix project selector widget: ds name instead of id
         if not g.project['dataset_ids']:
             g.project['dataset_ids'] = [dataset.id for dataset in g.api.dataset.get_list(g.project['project_id'])]
+        else:
+            # TODO: remove when fix upper will be done
+            g.project['dataset_ids'] = [g.api.dataset.get_info_by_name(g.project['project_id'], ds_name).id for ds_name in g.project['dataset_ids']]
     
         datasets = g.api.dataset.get_list(g.project['project_id'])
         g.ds_id_to_name = {dataset.id: dataset.name for dataset in datasets}
         project_meta = g.api.project.get_meta(g.project['project_id'])
+        g.project['project_meta'] = supervisely.ProjectMeta.from_json(project_meta)
         team_users = g.api.user.get_team_members(g.TEAM_ID)
         
         filtering_functions.get_available_classes_and_tags(project_meta)

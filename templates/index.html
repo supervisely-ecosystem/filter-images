@@ -1,26 +1,4 @@
-<!DOCTYPE html>def show_preview(images_list, n_samples=6):
-card_widgets.images_gallery.loading = True
-card_widgets.images_gallery.clean_up()
-random.shuffle(images_list)
-images_batch = images_list[:n_samples]
-
-for image in images_batch:
-img_url = image.full_storage_url
-if img_url is None:
-continue
-# annotation =
-
-card_widgets.images_gallery.append(
-image_url=img_url,
-title=image.name,
-# 'annotation': annotation
-)
-
-card_widgets.images_gallery.loading = False
-
-<pre>
-  {{ images_table }}
-</pre>
+<!DOCTYPE html>
 
 <html>
 <head>
