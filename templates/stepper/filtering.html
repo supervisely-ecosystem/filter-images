@@ -1,23 +1,23 @@
 <div id="filtering-layout">
     <sly-card title="Filtering settings"
+              subtitle="assign filters to select the data"
               class="mr15"
-              style="width: 30%; min-width: 300px; max-width: 700px; float:left;"
               :options="{collapsable: true}"
               :collapsed.sync="state.collapsed_steps.filtering"
               :disabled="{disabled: data.current_step < data.steps.filtering, message: 'complete previous step to unlock'}"
     >
         <div id="select-preset">
-            Select preset: 
+            Select preset:
             <el-select
-                v-model="state.current_preset"
-                :disabled="data.current_step > data.steps.filtering"
-                @change="post('/select_preset/');"
+                    v-model="state.current_preset"
+                    :disabled="data.current_step > data.steps.filtering"
+                    @change="post('/select_preset/');"
             >
                 <el-option
-                    v-for="item in data.available_presets"
-                    :label="item.name"
-                    :key="item.name"
-                    :value="item.name">
+                        v-for="item in data.available_presets"
+                        :label="item.name"
+                        :key="item.name"
+                        :value="item.name">
                 </el-option>
             </el-select>
         </div>
@@ -27,268 +27,268 @@
             </div>
             <div class="filter-fields">
                 <el-select
-                    v-model="state.selected_filters[idx].name"
-                    :disabled="data.current_step > data.steps.filtering"
-                    @change="state.filter_to_change = idx;
+                        v-model="state.selected_filters[idx].name"
+                        :disabled="data.current_step > data.steps.filtering"
+                        @change="state.filter_to_change = idx;
                             post('/select_filter/');"
                 >
                     <el-option
-                        v-for="item in data.available_filters"
-                        :label="item.name"
-                        :key="item.name"
-                        :value="item.name">
+                            v-for="item in data.available_filters"
+                            :label="item.name"
+                            :key="item.name"
+                            :value="item.name">
                     </el-option>
                 </el-select>
 
                 <div class="filter-data" v-if="filter.type === 'images_filename'">
 
-                    <el-input 
-                        class="mt5" 
-                        v-model="filter.data.value"
-                        placeholder="img* or [[0-1000]]"
-                        :disabled="data.current_step > data.steps.filtering"
+                    <el-input
+                            class="mt5"
+                            v-model="filter.data.value"
+                            placeholder="img* or [[0-1000]]"
+                            :disabled="data.current_step > data.steps.filtering"
                     ></el-input>
 
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'images_tag'">
                     <el-select
-                        v-model="state.selected_filters[idx].data.tagId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.tagId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_tags"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_tags"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'objects_tag'">
                     <el-select
-                        v-model="state.selected_filters[idx].data.tagId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.tagId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_tags"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_tags"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                     <div v-if="state.objects_count_buttons_visible[idx]">
                         <el-button
-                            :disabled="data.current_step > data.steps.filtering"
-                            type="text"
-                            size="mini"
-                            @click="state.filter_to_change = idx;
+                                :disabled="data.current_step > data.steps.filtering"
+                                type="text"
+                                size="mini"
+                                @click="state.filter_to_change = idx;
                                     post('/open_object_counts/');">
                             at least one object
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.from"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.from"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.to"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.to"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
                     <el-select
-                        v-model="state.selected_filters[idx].data.tagClassId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.tagClassId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_classes"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_classes"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'objects_class'">
                     <el-select
-                        v-model="state.selected_filters[idx].data.classId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.classId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_classes"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_classes"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                     <div v-if="state.objects_count_buttons_visible[idx]">
                         <el-button
-                            :disabled="data.current_step > data.steps.filtering"
-                            type="text"
-                            size="mini"
-                            @click="state.filter_to_change = idx;
+                                :disabled="data.current_step > data.steps.filtering"
+                                type="text"
+                                size="mini"
+                                @click="state.filter_to_change = idx;
                                     post('/open_object_counts/');">
                             at least one object
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.from"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.from"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.to"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.to"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'objects_annotator'">
                     <el-select
-                        v-model="state.selected_filters[idx].data.userId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.userId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_annotators"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_annotators"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                     <div v-if="state.objects_count_buttons_visible[idx]">
                         <el-button
-                            :disabled="data.current_step > data.steps.filtering"
-                            type="text"
-                            size="mini"
-                            @click="state.filter_to_change = idx;
+                                :disabled="data.current_step > data.steps.filtering"
+                                type="text"
+                                size="mini"
+                                @click="state.filter_to_change = idx;
                                     post('/open_object_counts/');">
                             at least one object
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.from"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.from"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.to"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.to"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'tagged_by_annotator'">
                     <el-select
-                        v-model="state.selected_filters[idx].data.userId"
-                        :disabled="data.current_step > data.steps.filtering"
+                            v-model="state.selected_filters[idx].data.userId"
+                            :disabled="data.current_step > data.steps.filtering"
                     >
                         <el-option
-                            v-for="item in data.available_annotators"
-                            :label="item.name"
-                            :key="item.name"
-                            :value="item.id">
+                                v-for="item in data.available_annotators"
+                                :label="item.name"
+                                :key="item.name"
+                                :value="item.id">
                         </el-option>
                     </el-select>
                     <div v-if="state.objects_count_buttons_visible[idx]">
                         <el-button
-                            :disabled="data.current_step > data.steps.filtering"
-                            type="text"
-                            size="mini"
-                            @click="state.filter_to_change = idx;
+                                :disabled="data.current_step > data.steps.filtering"
+                                type="text"
+                                size="mini"
+                                @click="state.filter_to_change = idx;
                                     post('/open_object_counts/');">
                             at least one tag
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.from"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.from"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.to"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.to"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'issues_count'">
-                    <div>
+                    <div class="filter-limits">
+                        from:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.from"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.from"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
-                            v-model="state.selected_filters[idx].data.to"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.to"
+                                :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
-                    <div>
+                    <div class="filter-data">
                         <el-select
-                            v-model="state.selected_filters[idx].data.status"
-                            :disabled="data.current_step > data.steps.filtering"
+                                v-model="state.selected_filters[idx].data.status"
+                                :disabled="data.current_step > data.steps.filtering"
                         >
                             <el-option
-                                v-for="item in data.issue_statuses"
-                                :label="item.name"
-                                :key="item.name"
-                                :value="item.value">
+                                    v-for="item in data.issue_statuses"
+                                    :label="item.name"
+                                    :key="item.name"
+                                    :value="item.value">
                             </el-option>
                         </el-select>
                     </div>
                 </div>
             </div>
-            
+
             <div class="filter-remove">
                 <el-button
-                    :disabled="data.current_step > data.steps.filtering"
-                    type="text"
-                    size="small"
-                    @click="state.filter_to_change = idx;
+                        :disabled="data.current_step > data.steps.filtering"
+                        type="text"
+                        size="medium"
+                        @click="state.filter_to_change = idx;
                             post('/remove_filter/');">
-                    x
+                    <i class="zmdi zmdi-close"></i>
                 </el-button>
             </div>
         </div>
-        <div>
-            <el-button
-                :disabled="data.current_step > data.steps.filtering"
-                round
-                type="success"
-                @click="post('/add_filter/');">
-                +
-            </el-button>
+        <div class="mt10">
+            <div v-if="data.current_step <= data.steps.filtering">
+                <el-button
+                        :disabled="data.current_step > data.steps.filtering"
+                        round
+                        type="success"
+                        @click="post('/add_filter/');">
+                    ADD FILTER
+                </el-button>
+                <el-button
+                        v-if="state.selected_filters.length > 0"
+                        :disabled="data.current_step > data.steps.filtering"
+                        type="danger"
+                        @click="post('/remove_all_filters/');">
+                    REMOVE ALL FILTERS
+                </el-button>
+                <el-button
+                        :disabled="data.current_step > data.steps.filtering"
+                        type="primary"
+                        :loading="state.filtering"
+                        @click="post('/apply_filters/');">
+                    APPLY FILTERS
+                </el-button>
+
+                <div v-if="state.empty_list" style="margin-top:10px;">
+                    {{{ no_images_box.to_html() }}}
+                </div>
+            </div>
+            <div v-else>{{{ reselect_filters_button.to_html() }}}</div>
         </div>
-
-        <div>
-            <el-button
-                :disabled="data.current_step > data.steps.filtering"
-                type="danger"
-                @click="post('/remove_all_filters/');">
-                REMOVE ALL FILTERS
-            </el-button>
-            <el-button
-                :disabled="data.current_step > data.steps.filtering"
-                type="primary"
-                @click="post('/apply_filters/');">
-                APPLY FILTERS
-            </el-button>
-        </div>
-    </sly-card>
-
-    <sly-card title="Images list"
-              subtitle="Explore filtered data"
-              :options="{collapsable: true}"
-              :collapsed.sync="state.collapsed_steps.filtering"
-              :disabled="{disabled: data.current_step < data.steps.filtering, message: 'complete previous step to unlock'}"
-    >
-        {{{ images_table.to_html() }}}
-    </sly-card>
-
-    <sly-card title="Image Preview"
-              subtitle="Explore filtered data"
-              style="width: 100%; margin-top: 10px;"
-    >
-        {{{ images_gallery.to_html() }}}
     </sly-card>
 </div>

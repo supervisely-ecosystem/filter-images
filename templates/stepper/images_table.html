@@ -1,0 +1,22 @@
+<div id="images_table-layout" class="fflex" style="align-items: stretch">
+    <sly-card title="Images list"
+              class="mr15"
+              style="width:60%;"
+              subtitle="Explore filtered data"
+              :options="{collapsable: true}"
+              :collapsed.sync="state.collapsed_steps.images_table"
+              :disabled="{disabled: data.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
+    >
+        {{{ images_table.to_html() }}}
+    </sly-card>
+    <sly-card title="Image Preview"
+              style="width:40%;"
+              subtitle="click on any cell in the table to show the image here"
+              :options="{collapsable: true}"
+              :collapsed.sync="state.collapsed_steps.images_table"
+              :disabled="{disabled: data.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
+    >
+    <div>Item name: {{state.current_item_name}}</div>
+        {{{ images_gallery.to_html() }}}
+    </sly-card>
+</div>

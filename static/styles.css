@@ -6,7 +6,9 @@
     background-color: rgb(240, 250, 255);
     margin: 5px;
     padding: 10px;
-    
+    position: relative;
+    display: flex;
+    align-items: flex-start;
 }
 
 .filter-fields > .el-select, .filter-fields > .el-input, .filter-fields > .el-input-number {
@@ -25,16 +27,18 @@
 }
 
 .filter-text {
-    float:left;
-    width: 20%;
+    width: 100px;
     margin-top: 15px;
 }
 
 .filter-fields {
-    float:left;
-    width: 60%;
+    flex: 1;
+    margin-right:30px;
 }
 
 .filter-remove {
-    width: 10%;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 0 10px;
 }

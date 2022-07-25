@@ -1,5 +1,6 @@
 from supervisely.app.widgets import ElementButton, ConfusionMatrix, ClassicTable, GridGallery, NotificationBox
 
-images_table = ClassicTable(fixed_columns_num=3)
+reselect_filters_button = ElementButton(text='<i style="margin-right: 5px" class="zmdi zmdi-rotate-left"></i>reselect',
+                                         button_type='warning', button_size='small', plain=True)
 
-images_gallery = GridGallery(columns_number=3, enable_zoom=False, sync_views=True)
+no_images_box = NotificationBox("No images for your request. Please choose other filters.", box_type='warning')

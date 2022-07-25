@@ -39,7 +39,8 @@ project_dir = os.path.join(app_data_dir, 'project_dir')
 project = {
     'workspace_id': None,
     'project_id': None,
-    'dataset_ids': []
+    'dataset_ids': [],
+    'project_meta': None
 }
 
 ds_id_to_name = {}
@@ -47,11 +48,13 @@ ds_id_to_name = {}
 DataJson()['steps'] = OrderedDict({
     "input_project": 1,
     "filtering": 2,
-    "actions": 3
+    "images_table": 3,
+    "actions": 4
 })
 DataJson()['current_step'] = 1
 StateJson()['collapsed_steps'] = {
     "input_project": False,
     "filtering": True,
+    "images_table": True,
     "actions": True
 }

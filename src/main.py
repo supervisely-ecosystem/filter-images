@@ -4,6 +4,7 @@ import src.sly_globals as g
 
 import src.input_project
 import src.filtering
+import src.images_table
 import src.actions
 
 
