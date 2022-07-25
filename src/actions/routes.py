@@ -1,5 +1,4 @@
 from fastapi import Depends, HTTPException
-from numpy import False_
 
 import supervisely
 
@@ -19,21 +18,31 @@ import src.sly_globals as g
 def apply_action_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state["action_process"] = True
     run_sync(state.synchronize_changes())
-    res_project_info, res_dataset_msg = card_functions.apply_action(state)
-    state["action_process"] = False
-    state["action_finished"] = True
+    try:
+        res_project_info, res_dataset_msg = card_functions.apply_action(state)
+        state["action_process"] = False
+        state["action_finished"] = True
 
-    DataJson()['dstProjectPreviewUrl'] = g.api.image.preview_url(
-        res_project_info.reference_image_url, 
-        100, 
-        100
-    )
-    DataJson()['dstDatasetMsg'] = res_dataset_msg
-    DataJson()['dstProjectName'] = res_project_info.name
-    run_sync(state.synchronize_changes())
-    run_sync(DataJson().synchronize_changes())
+        if res_project_info.reference_image_url is not None:
+            DataJson()['dstProjectPreviewUrl'] = g.api.image.preview_url(
+                res_project_info.reference_image_url, 
+                100, 
+                100
+            )
+        DataJson()['dstDatasetMsg'] = res_dataset_msg
+        DataJson()['dstProjectName'] = res_project_info.name
+        DataJson()['dstProjectId'] = res_project_info.id
 
-    f.shutdown_app()
+        run_sync(state.synchronize_changes())
+        run_sync(DataJson().synchronize_changes())
+        
+        f.shutdown_app()
+    except Exception as e:
+        state["action_process"] = False
+        
+        run_sync(state.synchronize_changes())
+        run_sync(DataJson().synchronize_changes())
+        raise e
 
 @g.app.post('/select_dst_project/')
 def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):

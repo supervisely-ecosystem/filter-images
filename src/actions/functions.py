@@ -1,6 +1,4 @@
-from supervisely.annotation.tag_meta_collection import TagMetaCollection
-from supervisely.app import DataJson, StateJson
-from supervisely.app.fastapi import run_sync
+from supervisely.app import DataJson
 import supervisely as sly
 
 import src.sly_globals as g
@@ -8,22 +6,39 @@ import src.actions.widgets as card_widgets
 
 def copy_images(ds_id):
     images_list = DataJson()['images_list']
-    image_ids = [image.id for image in images_list]
-    with card_widgets.action_progress(message='Copying images...', total=len(image_ids)) as pbar:
-        g.api.image.copy_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+    image_ids = {}
+    for image in images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    with card_widgets.action_progress(message='Copying images...', total=image_ids_len) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.image.copy_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def move_images(ds_id):
     images_list = DataJson()['images_list']
-    image_ids = [image.id for image in images_list]
-    with card_widgets.action_progress(message='Moving images...', total=len(image_ids)) as pbar:
-        g.api.image.move_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+    image_ids = {}
+    for image in images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    with card_widgets.action_progress(message='Moving images...', total=image_ids_len) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.image.move_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def delete_images():
-    # TODO: Fix "Can't remove last image in dataset" or forbid deletion of all elements
     images_list = DataJson()['images_list']
-    image_ids = [image.id for image in images_list]
-    with card_widgets.action_progress(message='Deleting images...', total=len(image_ids)) as pbar:
-        g.api.image.remove_batch(image_ids, progress_cb=pbar.update)
+    image_ids = {}
+    for image in images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    with card_widgets.action_progress(message='Deleting images...', total=image_ids_len) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.image.remove_batch(image_ids_per_ds, progress_cb=pbar.update)
 
 def assign_tag(state):
     tag = state['tag_to_add']
@@ -51,18 +66,30 @@ def assign_tag(state):
                 break
     
     images_list = DataJson()['images_list']
-    image_ids = [image.id for image in images_list]
-    with card_widgets.action_progress(message='Assigning tag to images...', total=len(image_ids)) as pbar:
-        g.api.image.add_tag_batch(image_ids, tag_id, progress_cb=pbar.update)
+    image_ids = {}
+    for image in images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    with card_widgets.action_progress(message='Assigning tag to images...', total=image_ids_len) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.image.add_tag_batch(image_ids_per_ds, tag_id, progress_cb=pbar.update)
 
 
 def remove_tags():
     images_list = DataJson()['images_list']
-    image_ids = [image.id for image in images_list]
+    image_ids = {}
+    for image in images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
     project_meta_tags = g.project["project_meta"].tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
-    with card_widgets.action_progress(message='Removing tag from images...', total=len(image_ids)) as pbar:
-        g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids, progress_cb=pbar.update)
+    with card_widgets.action_progress(message='Removing tag from images...', total=image_ids_len) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids_per_ds, progress_cb=pbar.update)
 
 
 def apply_action(state):
@@ -105,4 +132,8 @@ def apply_action(state):
 
     if action != 'Copy / Move':
         res_project_info = g.api.project.get_info_by_id(g.project['project_id'])
+        if len(g.project["dataset_ids"]) == 1:
+            res_dataset_msg = DataJson()['ds_names']
+        elif len(g.project["dataset_ids"]) > 1:
+            res_dataset_msg = f'Several datasets'
     return res_project_info, res_dataset_msg

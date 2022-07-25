@@ -188,5 +188,6 @@ StateJson()['selected_filters'] = []
 StateJson()['objects_count_buttons_visible'] = []
 StateJson()['filter_to_change'] = None
 StateJson()['filtering'] = False
+StateJson()['empty_list'] = False
 
 DataJson()['images_list'] = []

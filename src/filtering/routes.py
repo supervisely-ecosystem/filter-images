@@ -5,6 +5,7 @@ import supervisely
 import src.filtering.widgets as card_widgets
 import src.filtering.functions as card_functions
 import src.images_table.functions as table_functions
+import src.images_table.widgets as table_widgets
 
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import run_sync
@@ -19,14 +20,20 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     run_sync(state.synchronize_changes())
     query = card_functions.build_queries_from_filters(state)
     images_list = card_functions.get_images(query)
+    if len(images_list) == 0:
+        state["empty_list"] = True
+        state['filtering'] = False
+        run_sync(state.synchronize_changes())
+        return
+    else:
+        state["empty_list"] = False
     DataJson()['images_list'] = images_list
     table_functions.fill_table(images_list)
-    table_functions.show_preview(0, state) # show first image
+    first_row = table_widgets.images_table.get_json_data()['table_data']['data'][0]
+    id_col_index = table_widgets.images_table.get_json_data()['table_data']['columns'].index('id')
+    table_functions.show_preview(first_row[id_col_index], state) 
     
-    for i in range(len(DataJson()['available_dst_datasets']) + 1):
-        if f'ds{i}' not in DataJson()['available_dst_datasets']:
-            state['dstDatasetName'] = f'ds{i}'
-            break
+    state['dstDatasetName'] = 'ds0'
     state['filtering'] = False
 
     DataJson()['current_step'] += 2

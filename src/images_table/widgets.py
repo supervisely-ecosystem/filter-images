@@ -2,4 +2,4 @@ from supervisely.app.widgets import ElementButton, ConfusionMatrix, ClassicTable
 
 images_table = ClassicTable(fixed_columns_num=0)
 
-images_gallery = GridGallery(columns_number=1, enable_zoom=False, sync_views=True)
+images_gallery = GridGallery(columns_number=1, enable_zoom=False, sync_views=True, fill_rectangle=False)

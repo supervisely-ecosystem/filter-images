@@ -120,7 +120,7 @@
         ></el-input>
     </div>
 
-    <div v-if="state.action_process">
+    <div v-if="state.action_process" style="margin-bottom:10px">
         {{{ action_progress.to_html() }}}
     </div>
 
@@ -132,7 +132,7 @@
                 <a slot="title" target="_blank"
                    :href="`${data.instanceAddress}/projects/${data.dstProjectId}/datasets`">{{ data.dstProjectName
                     }}</a>
-                <sly-icon slot="icon" :options="{ imageUrl: `${data.dstProjectPreviewUrl}` }"/>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.instanceAddress}${data.dstProjectPreviewUrl}` }"/>
             </sly-field>
         </sly-field>
     </div>

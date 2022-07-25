@@ -283,6 +283,10 @@
                         @click="post('/apply_filters/');">
                     APPLY FILTERS
                 </el-button>
+
+                <div v-if="state.empty_list" style="margin-top:10px;">
+                    {{{ no_images_box.to_html() }}}
+                </div>
             </div>
             <div v-else>{{{ reselect_filters_button.to_html() }}}</div>
         </div>
