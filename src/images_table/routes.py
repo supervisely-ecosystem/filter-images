@@ -12,7 +12,8 @@ from supervisely.app.widgets.classic_table.classic_table import ClassicTable
 def images_table_cell_clicked(state: StateJson = Depends(StateJson.from_request)):
     selected_cell = card_widgets.images_table.get_selected_cell(state)
     
-    card_functions.show_preview(selected_cell['row_index'])
+    card_functions.show_preview(selected_cell['row_index'], state)
     run_sync(DataJson().synchronize_changes())
+    run_sync(state.synchronize_changes())
 
 

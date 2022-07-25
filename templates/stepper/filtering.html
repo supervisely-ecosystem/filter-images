@@ -88,10 +88,12 @@
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.from"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.to"
                                 :disabled="data.current_step > data.steps.filtering"
@@ -133,10 +135,12 @@
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.from"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.to"
                                 :disabled="data.current_step > data.steps.filtering"
@@ -167,10 +171,12 @@
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.from"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.to"
                                 :disabled="data.current_step > data.steps.filtering"
@@ -201,10 +207,12 @@
                         </el-button>
                     </div>
                     <div v-else class="filter-limits">
+                        from:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.from"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.to"
                                 :disabled="data.current_step > data.steps.filtering"
@@ -213,17 +221,19 @@
                 </div>
 
                 <div class="filter-data" v-else-if="filter.type === 'issues_count'">
-                    <div>
+                    <div class="filter-limits">
+                        from:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.from"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
+                        to:
                         <el-input-number
                                 v-model="state.selected_filters[idx].data.to"
                                 :disabled="data.current_step > data.steps.filtering"
                         ></el-input-number>
                     </div>
-                    <div>
+                    <div class="filter-data">
                         <el-select
                                 v-model="state.selected_filters[idx].data.status"
                                 :disabled="data.current_step > data.steps.filtering"
@@ -243,34 +253,38 @@
                 <el-button
                         :disabled="data.current_step > data.steps.filtering"
                         type="text"
-                        size="small"
+                        size="medium"
                         @click="state.filter_to_change = idx;
                             post('/remove_filter/');">
-                    x
+                    <i class="zmdi zmdi-close"></i>
                 </el-button>
             </div>
         </div>
         <div class="mt10">
-            <el-button
-                    :disabled="data.current_step > data.steps.filtering"
-                    round
-                    type="success"
-                    @click="post('/add_filter/');">
-                ADD FILTER
-            </el-button>
-            <el-button
-                    :disabled="data.current_step > data.steps.filtering"
-                    type="danger"
-                    @click="post('/remove_all_filters/');">
-                REMOVE ALL FILTERS
-            </el-button>
-            <el-button
-                    :disabled="data.current_step > data.steps.filtering"
-                    type="primary"
-                    :loading="state.filtering"
-                    @click="post('/apply_filters/');">
-                APPLY FILTERS
-            </el-button>
+            <div v-if="data.current_step <= data.steps.filtering">
+                <el-button
+                        :disabled="data.current_step > data.steps.filtering"
+                        round
+                        type="success"
+                        @click="post('/add_filter/');">
+                    ADD FILTER
+                </el-button>
+                <el-button
+                        v-if="state.selected_filters.length > 0"
+                        :disabled="data.current_step > data.steps.filtering"
+                        type="danger"
+                        @click="post('/remove_all_filters/');">
+                    REMOVE ALL FILTERS
+                </el-button>
+                <el-button
+                        :disabled="data.current_step > data.steps.filtering"
+                        type="primary"
+                        :loading="state.filtering"
+                        @click="post('/apply_filters/');">
+                    APPLY FILTERS
+                </el-button>
+            </div>
+            <div v-else>{{{ reselect_filters_button.to_html() }}}</div>
         </div>
     </sly-card>
 </div>

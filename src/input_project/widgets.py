@@ -11,6 +11,4 @@ download_project_button = ElementButton(text='SELECT', button_type='primary')
 reselect_project_button = ElementButton(text='<i style="margin-right: 5px" class="zmdi zmdi-rotate-left"></i>reselect',
                                          button_type='warning', button_size='small', plain=True)
 
-download_project_progress = SlyTqdm(message='')
-
 project_downloaded_done_label = DoneLabel(text="Project and datasets selected")

@@ -2,20 +2,30 @@
           subtitle="select input project to label"
           :options="{collapsable: true}"
           :collapsed.sync="state.collapsed_steps.input_project">
-    <div style="display:flex; flex-direction: row">
+    <div v-if="data.current_step == data.steps.input_project" 
+         style="display:flex; flex-direction: row; margin-bottom:10px;">
         {{{ project_selector.to_html() }}}
     </div>
-    <div style="margin: 15px 0 0 5px; display: flex; flex-direction: column">
-        <div style="width: 420px; margin-bottom: 15px">
-            {{{ download_project_progress.to_html() }}}
-        </div>
-        <div>
-            <div v-if="data.current_step <= data.steps.input_project">{{{ download_project_button.to_html() }}}</div>
-            <div v-else>{{{ reselect_project_button.to_html() }}}</div>
+    <div v-if="data.current_step > data.steps.input_project">
+        <sly-field title="Input Project"
+                   description=""
+                   style="margin-bottom: 0">
+            <sly-field title="" :description="data.ds_names">
+                <a slot="title" target="_blank"
+                :href="`${data.instanceAddress}/projects/${data.projectId}/datasets`">{{data.project_name}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-field>
+    </div>
 
-            <div v-if="data.current_step > data.steps.input_project" style="margin-top: 17px">
-                {{{ project_downloaded_done_label.to_html() }}}
-            </div>
+    <div>
+        <div v-if="data.current_step <= data.steps.input_project">
+            {{{ download_project_button.to_html() }}}
+        </div>
+        <div v-else>{{{ reselect_project_button.to_html() }}}</div>
+
+        <div v-if="data.current_step > data.steps.input_project" style="margin-top: 10px">
+            {{{ project_downloaded_done_label.to_html() }}}
         </div>
     </div>
 </sly-card>

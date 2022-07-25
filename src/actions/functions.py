@@ -4,23 +4,26 @@ from supervisely.app.fastapi import run_sync
 import supervisely as sly
 
 import src.sly_globals as g
-import src.filtering.widgets as card_widgets
+import src.actions.widgets as card_widgets
 
 def copy_images(ds_id):
     images_list = DataJson()['images_list']
     image_ids = [image.id for image in images_list]
-    g.api.image.copy_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True)
+    with card_widgets.action_progress(message='Copying images...', total=len(image_ids)) as pbar:
+        g.api.image.copy_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def move_images(ds_id):
     images_list = DataJson()['images_list']
     image_ids = [image.id for image in images_list]
-    g.api.image.move_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True)
+    with card_widgets.action_progress(message='Moving images...', total=len(image_ids)) as pbar:
+        g.api.image.move_batch(ds_id, image_ids, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def delete_images():
     # TODO: Fix "Can't remove last image in dataset" or forbid deletion of all elements
     images_list = DataJson()['images_list']
     image_ids = [image.id for image in images_list]
-    g.api.image.remove_batch(image_ids)
+    with card_widgets.action_progress(message='Deleting images...', total=len(image_ids)) as pbar:
+        g.api.image.remove_batch(image_ids, progress_cb=pbar.update)
 
 def assign_tag(state):
     tag = state['tag_to_add']
@@ -49,7 +52,8 @@ def assign_tag(state):
     
     images_list = DataJson()['images_list']
     image_ids = [image.id for image in images_list]
-    g.api.image.add_tag_batch(image_ids, tag_id)
+    with card_widgets.action_progress(message='Assigning tag to images...', total=len(image_ids)) as pbar:
+        g.api.image.add_tag_batch(image_ids, tag_id, progress_cb=pbar.update)
 
 
 def remove_tags():
@@ -57,23 +61,39 @@ def remove_tags():
     image_ids = [image.id for image in images_list]
     project_meta_tags = g.project["project_meta"].tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
-    g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids)
+    with card_widgets.action_progress(message='Removing tag from images...', total=len(image_ids)) as pbar:
+        g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids, progress_cb=pbar.update)
 
 
 def apply_action(state):
     action = state["selected_action"]
-    if action == 'Copy to existing dataset':
-        dataset = g.api.dataset.get_info_by_name(g.project["project_id"], state["selected_dataset"])
-        copy_images(dataset.id)
-    elif action == 'Copy to new dataset':
-        dataset = g.api.dataset.create(g.project["project_id"], state["new_dataset"])
-        copy_images(dataset.id)
-    elif action == 'Move to existing dataset':
-        dataset = g.api.dataset.get_info_by_name(g.project["project_id"], state["selected_dataset"])
-        move_images(dataset.id)
-    elif action == 'Move to new dataset':
-        dataset = g.api.dataset.create(g.project["project_id"], state["new_dataset"])
-        move_images(dataset.id)
+    res_project_info = None
+    res_dataset_msg = ''
+    if action == 'Copy / Move':
+        project_id = None
+        ds_id = None
+
+        if state['dstProjectMode'] == 'newProject':
+            project_info = g.api.project.create(g.project["workspace_id"], state["dstProjectName"], type=sly.ProjectType.IMAGES, change_name_if_conflict=True)
+            project_id = project_info.id
+            res_project_info = project_info
+        elif state['dstProjectMode'] == 'existingProject':
+            project_id = state['selectedProjectId']
+            res_project_info = g.api.project.get_info_by_id(project_id)
+
+        if state['dstDatasetMode'] == 'newDataset':
+            dataset_info = g.api.dataset.create(project_id, state['dstDatasetName'])
+            res_dataset_msg = f'Dataset: {dataset_info.name}'
+        elif state['dstDatasetMode'] == 'existingDataset':
+            dataset_info = g.api.dataset.get_info_by_name(project_id, state['selectedDatasetName'])
+            res_dataset_msg = f'Dataset: {dataset_info.name}'
+        ds_id = dataset_info.id
+
+        if state["move_or_copy"] == "copy":
+            copy_images(ds_id)
+        elif state["move_or_copy"] == "move":
+            move_images(ds_id)
+
     elif action == 'Delete':
         delete_images()
     elif action == 'Assign tag':
@@ -82,3 +102,7 @@ def apply_action(state):
         remove_tags()
     else:
         raise ValueError(f'Action is not supported to use: {action}')
+
+    if action != 'Copy / Move':
+        res_project_info = g.api.project.get_info_by_id(g.project['project_id'])
+    return res_project_info, res_dataset_msg

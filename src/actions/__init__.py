@@ -5,19 +5,29 @@ from src.actions.functions import *
 from src.actions.widgets import *
 
 DataJson()['available_actions'] = [
-    'Copy to existing dataset',
-    'Copy to new dataset',
-    'Move to existing dataset',
-    'Move to new dataset',
+    'Copy / Move',
     'Delete',
     'Assign tag',
     'Remove all tags'
 ]
 
-DataJson()['available_datasets'] = []
-
-StateJson()['selected_dataset'] = ''
-StateJson()['new_dataset'] = ''
-StateJson()['selected_action'] = 'Copy to existing dataset'
+StateJson()['selected_action'] = 'Copy / Move'
 StateJson()['action_process'] = False
 StateJson()['tag_to_add'] = ''
+StateJson()['loadingDatasets'] = False
+StateJson()['action_finished'] = False
+
+StateJson()['dstProjectMode'] = 'newProject' # ['newProject', 'existingProject']
+StateJson()['dstDatasetMode'] = 'newDataset' # ['newDataset', 'existingDataset']
+StateJson()['move_or_copy'] = 'copy'
+StateJson()['dstDatasetName'] = None
+StateJson()['dstProjectName'] = None
+StateJson()['selectedDatasetName'] = None
+StateJson()['selectedProjectId'] = None
+StateJson()['workspaceId'] = None
+
+DataJson()['dstProjectId'] = None
+DataJson()['dstProjectPreviewUrl'] = None
+DataJson()['dstDatasetMsg'] = ''
+DataJson()['available_dst_projects'] = []
+DataJson()['available_dst_datasets'] = []

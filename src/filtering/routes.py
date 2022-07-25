@@ -21,12 +21,12 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     images_list = card_functions.get_images(query)
     DataJson()['images_list'] = images_list
     table_functions.fill_table(images_list)
-    DataJson()['available_datasets'] = [ds.name for ds in g.api.dataset.get_list(g.project["project_id"])]
-    for i in range(len(DataJson()['available_datasets']) + 1):
-        if f'ds{i}' not in DataJson()['available_datasets']:
-            state['new_dataset'] = f'ds{i}'
+    table_functions.show_preview(0, state) # show first image
+    
+    for i in range(len(DataJson()['available_dst_datasets']) + 1):
+        if f'ds{i}' not in DataJson()['available_dst_datasets']:
+            state['dstDatasetName'] = f'ds{i}'
             break
-    state['selected_dataset'] = DataJson()['available_datasets'][0]
     state['filtering'] = False
 
     DataJson()['current_step'] += 2
@@ -98,4 +98,15 @@ def remove_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely
 @g.app.post('/open_object_counts/')
 def open_object_counts_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['objects_count_buttons_visible'][state['filter_to_change']] = False
+    run_sync(state.synchronize_changes())
+
+@card_widgets.reselect_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
+def reselect_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    state['selected_filters'] = []
+    state['objects_count_buttons_visible'] = []
+    state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
+
+    DataJson()['current_step'] = DataJson()["steps"]["filtering"]
+
+    run_sync(DataJson().synchronize_changes())
     run_sync(state.synchronize_changes())
