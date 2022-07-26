@@ -42,7 +42,8 @@ def apply_action_clicked(state: supervisely.app.StateJson = Depends(supervisely.
         
         run_sync(state.synchronize_changes())
         run_sync(DataJson().synchronize_changes())
-        raise e
+        raise HTTPException(500, repr(e))
+        
 
 @g.app.post('/select_dst_project/')
 def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
@@ -57,4 +58,17 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
             state['dstDatasetName'] = f'ds{i}'
             break
     state['loadingDatasets'] = False
+    run_sync(state.synchronize_changes())
+
+@g.app.post('/select_action/')
+def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    num_images = len(DataJson()['images_list'])
+    if state['selected_action'] == 'Copy / Move':
+        state['apply_text'] = f'APPLY TO {num_images} IMAGES'
+    elif state['selected_action'] == 'Delete':
+        state['apply_text'] = f'DELETE {num_images} IMAGES'
+    elif state['selected_action'] == 'Assign tag':
+        state['apply_text'] = f'ASSIGN TAG TO {num_images} IMAGES'
+    elif state['selected_action'] == 'Remove all tags':
+        state['apply_text'] = f'REMOVE TAGS FROM {num_images} IMAGES'
     run_sync(state.synchronize_changes())

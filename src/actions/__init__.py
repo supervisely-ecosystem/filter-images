@@ -16,6 +16,7 @@ StateJson()['action_process'] = False
 StateJson()['tag_to_add'] = ''
 StateJson()['loadingDatasets'] = False
 StateJson()['action_finished'] = False
+StateJson()['apply_text'] = 'APPLY'
 
 StateJson()['dstProjectMode'] = 'newProject' # ['newProject', 'existingProject']
 StateJson()['dstDatasetMode'] = 'newDataset' # ['newDataset', 'existingDataset']

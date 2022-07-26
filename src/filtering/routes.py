@@ -19,7 +19,10 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     state['filtering'] = True
     run_sync(state.synchronize_changes())
     query = card_functions.build_queries_from_filters(state)
-    images_list = card_functions.get_images(query)
+    try:
+        images_list = card_functions.get_images(query)
+    except Exception as e:
+        raise HTTPException(500, repr(e))
     if len(images_list) == 0:
         state["empty_list"] = True
         state['filtering'] = False
@@ -35,6 +38,7 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     
     state['dstDatasetName'] = 'ds0'
     state['filtering'] = False
+    state['apply_text'] = f'APPLY TO {len(images_list)} IMAGES'
 
     DataJson()['current_step'] += 2
     state['collapsed_steps']["images_table"] = False

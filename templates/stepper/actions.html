@@ -9,6 +9,7 @@
         v-model="state.selected_action"
         style="width:300px;margin:5px"
         :disabled="data.current_step > data.steps.actions"
+        @change="post('/select_action/');"
     >
         <el-option
             v-for="item in data.available_actions"
@@ -141,7 +142,7 @@
             type="primary"
             @click="post('/apply_action/');"
             :loading="state.action_process">
-            APPLY
+            {{ state.apply_text }}
         </el-button>
     </div>
 
