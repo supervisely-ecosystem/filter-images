@@ -12,7 +12,6 @@ from supervisely.app.widgets import ElementButton
 
 import src.sly_globals as g
 
-
 @card_widgets.download_project_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def download_selected_project(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     card_widgets.download_project_button.loading = True
@@ -25,11 +24,20 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
         g.project['project_id'] = card_widgets.project_selector.get_selected_project_id(state)
         g.project['dataset_ids'] = card_widgets.project_selector.get_selected_datasets(state)
         DataJson()['projectId'] = g.project['project_id']
+        
+        # TODO: fix project selector 'AllDatasets' checkbox - can't know when checked
         # TODO: fix project selector widget: ds name instead of id
         if not g.project['dataset_ids']:
-            g.project['dataset_ids'] = [dataset.id for dataset in g.api.dataset.get_list(g.project['project_id'])]
+            g.project['dataset_ids'] = [dataset.id for dataset in g.api.dataset.get_list(g.project['project_id'])]           
             DataJson()['ds_names'] = "All datasets"
         else:
+            # TODO: will work when project selector will be fixed
+            if not g.project['dataset_ids']:
+                state["ds_not_selected"] = True
+                run_sync(state.synchronize_changes())
+                return
+            else:
+                state["ds_not_selected"] = False
             # TODO: remove when fix upper will be done
             if len(g.project['dataset_ids']) > 1:
                 DataJson()['ds_names'] = "Several datasets"
@@ -37,7 +45,7 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
                 DataJson()['ds_names'] = f'Dataset: {g.project["dataset_ids"][0]}'
             state['dstDatasetName'] = g.project['dataset_ids'][0]
             g.project['dataset_ids'] = [g.api.dataset.get_info_by_name(g.project['project_id'], ds_name).id for ds_name in g.project['dataset_ids']]
-    
+        
         proj_info = g.api.project.get_info_by_id(g.project['project_id'])
         DataJson()['project_name'] = proj_info.name
         DataJson()['projectPreviewUrl'] = g.api.image.preview_url(proj_info.reference_image_url, 100, 100)

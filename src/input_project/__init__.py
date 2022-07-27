@@ -11,3 +11,5 @@ DataJson()['projectId'] = None
 DataJson()['ds_names'] = []
 DataJson()['projectPreviewUrl'] = None
 DataJson()['instanceAddress'] = g.api.server_address
+
+StateJson()["ds_not_selected"] = False

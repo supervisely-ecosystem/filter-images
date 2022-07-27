@@ -22,6 +22,7 @@ def apply_action_clicked(state: supervisely.app.StateJson = Depends(supervisely.
         res_project_info, res_dataset_msg = card_functions.apply_action(state)
         state["action_process"] = False
         state["action_finished"] = True
+        run_sync(state.synchronize_changes())
 
         if res_project_info.reference_image_url is not None:
             DataJson()['dstProjectPreviewUrl'] = g.api.image.preview_url(
@@ -33,10 +34,7 @@ def apply_action_clicked(state: supervisely.app.StateJson = Depends(supervisely.
         DataJson()['dstProjectName'] = res_project_info.name
         DataJson()['dstProjectId'] = res_project_info.id
 
-        run_sync(state.synchronize_changes())
         run_sync(DataJson().synchronize_changes())
-        
-        f.shutdown_app()
     except Exception as e:
         state["action_process"] = False
         
@@ -65,10 +63,19 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
     num_images = len(DataJson()['images_list'])
     if state['selected_action'] == 'Copy / Move':
         state['apply_text'] = f'APPLY TO {num_images} IMAGES'
+        card_widgets.warning_before_action.title = "Your source project data MAY BE CHANGED. Apply this action only if you're sure that all settings selected correctly."
     elif state['selected_action'] == 'Delete':
         state['apply_text'] = f'DELETE {num_images} IMAGES'
+        card_widgets.warning_before_action.title = "Your source project data WILL BE DELETED. Apply this action only if you're sure what you do."
     elif state['selected_action'] == 'Assign tag':
         state['apply_text'] = f'ASSIGN TAG TO {num_images} IMAGES'
+        card_widgets.warning_before_action.title = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     elif state['selected_action'] == 'Remove all tags':
         state['apply_text'] = f'REMOVE TAGS FROM {num_images} IMAGES'
+        card_widgets.warning_before_action.title = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     run_sync(state.synchronize_changes())
+    run_sync(DataJson().synchronize_changes())
+
+@g.app.post('/finish_app/')
+def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    f.shutdown_app()

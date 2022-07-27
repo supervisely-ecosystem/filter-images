@@ -5,3 +5,4 @@ from src.images_table.functions import *
 from src.images_table.widgets import *
 
 StateJson()['current_item_name'] = ''
+StateJson()['loading_preview'] = False
