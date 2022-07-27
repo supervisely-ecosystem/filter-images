@@ -16,9 +16,10 @@
   "port": 8000,
   "task_location": "workspace_tasks",
   "icon_background": "#FFFFFF",
-  "icon": "",
+  "icon": "https://github.com/supervisely-ecosystem/filter-images/releases/download/v0.0.0/filter_icon.png",
   "icon_cover": true,
   "context_menu": {
       "target": ["images_project"]
-  }
+  },
+  "poster": "https://github.com/supervisely-ecosystem/filter-images/releases/download/v0.0.0/filter_poster.png"
 }
