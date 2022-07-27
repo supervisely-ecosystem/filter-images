@@ -31,15 +31,15 @@ App filters images from a project and allows you to copy, move, delete images an
 
 3. You can change way to filter if you need. Available ways:
 
-- By Filename
-- With tag
-- Without tag
-- Objects with tag
-- Objects without tag
-- Objects of class
-- Objects by annotator
-- Tagged by annotator
-- With issues
+- `By Filename`: select images where filename consists specified subsequence.
+- `With tag`: select images with specified image tag.
+- `Without tag`: select images without specified image tag.
+- `Objects with tag`: select images containing specified number of objects with specified image tag.
+- `Objects without tag`: select images containing specified number of objects without specified image tag.
+- `Objects of class`: select images containing specified number of objects of specified class.
+- `Objects by annotator`: select images containing specified number of objects annotated by specified annotator.
+- `Tagged by annotator`: select images containing specified number of tags annotated by specified annotator.
+- `With issues`: select images containing specified number of issues with specified status.
 
 You can add as many filter as you need. Filters will be combined with logical AND rule.
 
@@ -47,16 +47,16 @@ You can add as many filter as you need. Filters will be combined with logical AN
 
 5. Select one from available actions to apply to filtered data. Available actions:
 
-- Move / Copy
-- Delete
-- Assign tag
-- Remove all tags
+- `Copy / Move`
+- `Delete`
+- `Assign tag`
+- `Remove all tags`
 
-6. Be sure that you are correctly selected action and destination project / dataset (in 'Copy / Move' action). If everything is ok, apply selected action.
+6. Be sure that you are correctly selected action and destination project / dataset (in `Copy / Move` action). If everything is ok, apply selected action.
 
-7. Check destination project that everything is ok. If you need to apply more actions, click 'SELECT NEXT ACTION' button.
+7. Check destination project that everything is ok. If you need to apply more actions, click `SELECT NEXT ACTION` button.
 
-8. If you got all results that you wanted, click 'FINISH APP' button.
+8. If you got all results that you wanted, click `FINISH APP` button.
 
 
 Write to our technical support if you didn't find needed ways to filter your data.
