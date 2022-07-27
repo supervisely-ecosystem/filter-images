@@ -40,7 +40,7 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     state['filtering'] = False
     state['apply_text'] = f'APPLY TO {len(images_list)} IMAGES'
 
-    DataJson()['current_step'] += 2
+    state['current_step'] += 2
     state['collapsed_steps']["images_table"] = False
     state['collapsed_steps']["actions"] = False
     run_sync(state.synchronize_changes())

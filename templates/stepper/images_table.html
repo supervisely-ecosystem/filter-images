@@ -5,7 +5,7 @@
               subtitle="Explore filtered data"
               :options="{collapsable: true}"
               :collapsed.sync="state.collapsed_steps.images_table"
-              :disabled="{disabled: data.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
+              :disabled="{disabled: state.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
     >
         {{{ images_table.to_html() }}}
     </sly-card>
@@ -14,7 +14,7 @@
               subtitle="click on any cell in the table to show the image here"
               :options="{collapsable: true}"
               :collapsed.sync="state.collapsed_steps.images_table"
-              :disabled="{disabled: data.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
+              :disabled="{disabled: state.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
     >
     <div>Item name: {{state.current_item_name}}</div>
         {{{ images_gallery.to_html() }}}

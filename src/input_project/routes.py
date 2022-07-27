@@ -64,7 +64,7 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     filtering_functions.get_available_classes_and_tags(project_meta)
     filtering_functions.get_available_annotators(team_users)
 
-    DataJson()['current_step'] += 1
+    state['current_step'] += 1
     state['collapsed_steps']["filtering"] = False
     card_widgets.download_project_button.loading = False
 
