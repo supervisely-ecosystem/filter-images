@@ -6,7 +6,8 @@
 
 <p align="center">
   <a href="#Overview">Overview</a> •
-  <a href="#How-to-Use">How to Use</a>
+  <a href="#How-to-Use">How to Use</a> •
+  <a href="#Screenshot">Screenshot</a>
 </p>
 
 [![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervise.ly/apps/supervisely-ecosystem/filter-images)
@@ -60,4 +61,6 @@ You can add as many filter as you need. Filters will be combined with logical AN
 
 Write to our technical support if you didn't find needed ways to filter your data.
 
+# Screenshot
 
+<img src="https://github.com/supervisely-ecosystem/filter-images/releases/download/v0.0.0/filter_screenshot.png" />
