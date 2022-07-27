@@ -79,3 +79,10 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
 @g.app.post('/finish_app/')
 def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     f.shutdown_app()
+
+@g.app.post('/new_action/')
+def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    state["action_finished"] = False
+    DataJson()['current_step'] = 1
+    run_sync(state.synchronize_changes())
+    run_sync(DataJson().synchronize_changes())

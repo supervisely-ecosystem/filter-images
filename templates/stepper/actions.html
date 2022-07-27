@@ -125,7 +125,7 @@
         {{{ action_progress.to_html() }}}
     </div>
 
-    <div v-if="state.action_finished && !state.action_process && state.data.current_step == data.steps.actions">
+    <div v-if="state.action_finished && !state.action_process && data.current_step == data.steps.actions">
         <sly-field title="Output Project"
                    description=""
                    style="margin-bottom: 0">
@@ -137,6 +137,19 @@
                 <sly-icon slot="icon" :options="{ imageUrl: `${data.instanceAddress}${data.dstProjectPreviewUrl}` }"/>
             </sly-field>
         </sly-field>
+        <el-button
+            v-if="state.action_finished"
+            type="success"
+            @click="post('/new_action/');">
+            <i class="zmdi zmdi-refresh"></i>
+            SELECT NEXT ACTION
+        </el-button>
+        <el-button
+            type="danger"
+            @click="post('/finish_app/');">
+            <i class="zmdi zmdi-power"></i>
+            FINISH APP
+        </el-button>
     </div>
     <div v-else>
         <div style="margin-bottom:10px" v-if="!state.action_finished && !state.action_process">
@@ -146,12 +159,8 @@
             type="primary"
             @click="post('/apply_action/');"
             :loading="state.action_process">
+            <i class="zmdi zmdi-fire"></i>
             {{ state.apply_text }}
-        </el-button>
-        <el-button
-            type="danger"
-            @click="post('/finish_app/');">
-            FINISH APP
         </el-button>
     </div>
 

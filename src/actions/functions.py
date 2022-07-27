@@ -87,7 +87,7 @@ def remove_tags():
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
     project_meta_tags = g.project["project_meta"].tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
-    with card_widgets.action_progress(message='Removing tag from images...', total=image_ids_len) as pbar:
+    with card_widgets.action_progress(message='Removing tags from images...', total=image_ids_len) as pbar:
         for image_ids_per_ds in image_ids.values():
             g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids_per_ds, progress_cb=pbar.update)
 
