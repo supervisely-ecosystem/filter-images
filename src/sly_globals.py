@@ -51,7 +51,7 @@ DataJson()['steps'] = OrderedDict({
     "images_table": 3,
     "actions": 4
 })
-DataJson()['current_step'] = 1
+StateJson()['current_step'] = 1
 StateJson()['collapsed_steps'] = {
     "input_project": False,
     "filtering": True,
