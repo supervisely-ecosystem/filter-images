@@ -12,8 +12,8 @@
                    style="margin-bottom: 0">
             <sly-field title="" :description="data.ds_names">
                 <a slot="title" target="_blank"
-                :href="`${data.instanceAddress}/projects/${data.projectId}/datasets`">{{data.project_name}}</a>
-                <sly-icon slot="icon" :options="{ imageUrl: `${data.instanceAddress}${data.projectPreviewUrl}` }"/>
+                :href="`/projects/${data.projectId}/datasets`">{{data.project_name}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
             </sly-field>
         </sly-field>
     </div>

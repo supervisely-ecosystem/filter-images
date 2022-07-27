@@ -132,9 +132,9 @@
             <sly-field title="" :description="data.dstDatasetMsg">
                 <a slot="title" 
                    target="_blank"
-                   :href="`${data.instanceAddress}/projects/${data.dstProjectId}/datasets`"
+                   :href="`/projects/${data.dstProjectId}/datasets`"
                 >{{ data.dstProjectName }}</a>
-                <sly-icon slot="icon" :options="{ imageUrl: `${data.instanceAddress}${data.dstProjectPreviewUrl}` }"/>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.dstProjectPreviewUrl}` }"/>
             </sly-field>
         </sly-field>
         <el-button
