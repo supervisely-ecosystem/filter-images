@@ -18,8 +18,8 @@ import src.sly_globals as g
 def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['filtering'] = True
     run_sync(state.synchronize_changes())
-    query = card_functions.build_queries_from_filters(state)
     try:
+        query = card_functions.build_queries_from_filters(state)
         images_list = card_functions.get_images(query)
     except Exception as e:
         raise HTTPException(500, repr(e))
@@ -116,8 +116,35 @@ def reselect_filters_button_clicked(state: supervisely.app.StateJson = Depends(s
     state['selected_filters'] = []
     state['objects_count_buttons_visible'] = []
     state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
+    state['current_step'] = DataJson()["steps"]["filtering"]
 
-    DataJson()['current_step'] = DataJson()["steps"]["filtering"]
+    run_sync(state.synchronize_changes())
 
-    run_sync(DataJson().synchronize_changes())
+@g.app.post('/select_tag/')
+def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    new_tag_id = state['selected_filters'][state['filter_to_change']]['data']['tagId']
+    tag_data = None
+    for tag in DataJson()['available_tags']:
+        if tag['id'] == new_tag_id:
+            tag_data = tag
+            break
+
+    if tag_data is None:
+        supervisely.logger.warn(f"Not found tag with id: {new_tag_id}")
+        tag_data = DataJson()['available_tags'][0]
+
+    state['selected_filters'][state['filter_to_change']]['data']['valueType'] = tag_data['value_type']
+
+    if tag_data['value_type'] == str(supervisely.TagValueType.ANY_NUMBER):
+        state['selected_filters'][state['filter_to_change']]['data']['value'] = {
+            'from': 0.0, 
+            'to': 1.0
+        }
+    elif tag_data['value_type'] == str(supervisely.TagValueType.ANY_STRING):
+        state['selected_filters'][state['filter_to_change']]['data']['value'] = ''
+    elif tag_data['value_type'] == str(supervisely.TagValueType.ONEOF_STRING):
+        state['available_tag_values'] = tag_data["values"]
+        state['selected_filters'][state['filter_to_change']]['data']['value'] = []
+    elif tag_data['value_type'] == str(supervisely.TagValueType.NONE):
+        state['selected_filters'][state['filter_to_change']]['data']['value'] = None
     run_sync(state.synchronize_changes())

@@ -76,6 +76,6 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
 def reselect_project_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     card_widgets.project_selector.disabled = False
 
-    DataJson()['current_step'] = DataJson()["steps"]["input_project"]
+    state['current_step'] = DataJson()["steps"]["input_project"]
 
     run_sync(DataJson().synchronize_changes())

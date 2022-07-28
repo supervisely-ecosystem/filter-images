@@ -48,7 +48,7 @@ DataJson()['available_filters'] = [
             "tagId": None,
             "include": True,
             "value": None,
-            "tagHasValue": False
+            "valueType": None
         }
     },
     {
@@ -58,7 +58,7 @@ DataJson()['available_filters'] = [
             "tagId": None,
             "include": False,
             "value": None,
-            "tagHasValue": False
+            "valueType": None
         }
     },
     {
@@ -71,7 +71,7 @@ DataJson()['available_filters'] = [
             "tagId": None,
             "include": True,
             "value": None,
-            "tagHasValue": False
+            "valueType": None
         }
     },
     {
@@ -84,7 +84,7 @@ DataJson()['available_filters'] = [
             "tagId": None,
             "include": False,
             "value": None,
-            "tagHasValue": False
+            "valueType": None
         }
     },
     {
@@ -189,5 +189,6 @@ StateJson()['objects_count_buttons_visible'] = []
 StateJson()['filter_to_change'] = None
 StateJson()['filtering'] = False
 StateJson()['empty_list'] = False
+StateJson()['available_tag_values'] = []
 
 DataJson()['images_list'] = []
