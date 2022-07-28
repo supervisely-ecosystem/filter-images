@@ -41,19 +41,19 @@ def delete_images():
             g.api.image.remove_batch(image_ids_per_ds, progress_cb=pbar.update)
 
 def assign_tag(state):
-    tag = state['tag_to_add']
-    tag_id = None
-    if tag == '':
-        raise ValueError('Specify the tag to assign!')
-
-    project_meta_tags = g.project["project_meta"].tag_metas
-    for tag_obj in project_meta_tags:
-        if tag_obj.name == tag:
-            tag_id = tag_obj.sly_id
-            break
-
-    if tag_id is None:
-        g.project["project_meta"] = g.project["project_meta"].add_tag_meta(sly.TagMeta(tag, sly.TagValueType.NONE))
+    tag_value = state['tag_to_assign_value']
+    if state['assign_tag_is_existing'] == 'true':
+        tag_id = state['tag_to_assign']
+    else:
+        possible_values = None
+        if state['tag_to_assign_value_type'] == str(sly.TagValueType.ONEOF_STRING):
+            possible_values = state['tag_to_assign_values']
+        new_tag_meta = sly.TagMeta(
+            state['tag_to_assign_name'], 
+            state['tag_to_assign_value_type'], 
+            possible_values=possible_values, 
+            applicable_to=state['tag_to_assign_applicable_to'])
+        g.project["project_meta"] = g.project["project_meta"].add_tag_meta(new_tag_meta)
         g.api.project.update_meta(g.project["project_id"], g.project["project_meta"].to_json())
 
         project_meta_json = g.api.project.get_meta(g.project['project_id'])
@@ -61,10 +61,10 @@ def assign_tag(state):
         project_meta_tags = g.project["project_meta"].tag_metas
         
         for tag_obj in project_meta_tags:
-            if tag_obj.name == tag:
+            if tag_obj.name == state['tag_to_assign_name']:
                 tag_id = tag_obj.sly_id
                 break
-    
+        
     images_list = DataJson()['images_list']
     image_ids = {}
     for image in images_list:
@@ -74,7 +74,7 @@ def assign_tag(state):
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
     with card_widgets.action_progress(message='Assigning tag to images...', total=image_ids_len) as pbar:
         for image_ids_per_ds in image_ids.values():
-            g.api.image.add_tag_batch(image_ids_per_ds, tag_id, progress_cb=pbar.update)
+            g.api.image.add_tag_batch(image_ids_per_ds, tag_id, tag_value, progress_cb=pbar.update)
 
 
 def remove_tags():

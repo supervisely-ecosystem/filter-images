@@ -43,7 +43,10 @@ def stringify_label_tags(tags):
     for tag in tags:
         value = ''
         if tag.value is not None:
-            value = f":{round(tag.value, 3)}"
+            if tag.meta.value_type == str(supervisely.TagValueType.ANY_NUMBER):
+                value = f":{round(tag.value, 3)}"
+            else:
+                value = f":{tag.value}"
 
         final_message += f'{tag.name}{value}<br>'
 

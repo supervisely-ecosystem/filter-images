@@ -8,7 +8,7 @@
     <el-select
         v-model="state.selected_action"
         style="width:300px;margin:5px"
-        :disabled="state.current_step > data.steps.actions"
+        :disabled="state.action_process"
         @change="post('/select_action/');"
     >
         <el-option
@@ -24,11 +24,13 @@
             <div class="fflex" style="flex-direction: column; align-items: flex-start">
                 <el-radio class="radio"
                           v-model="state.move_or_copy"
+                          :disabled="state.action_process"
                           label="copy">
                     Copy Images
                 </el-radio>
                 <el-radio class="radio mt5"
                           v-model="state.move_or_copy"
+                          :disabled="state.action_process"
                           label="move"
                           style="margin-left: 0;">
                     Move images
@@ -41,21 +43,27 @@
 
                 <el-radio class="radio"
                           v-model="state.dstProjectMode"
+                          :disabled="state.action_process"
                           label="newProject"
                           @input="(val) => {
                             if (val === 'newProject') {
                                 state.dstDatasetMode = 'newDataset';
                             }
                           }"
-                >
-                    Create new project
-                </el-radio>
-                <el-radio class="radio" v-model="state.dstProjectMode" label="existingProject">Add to existing project
-                </el-radio>
+                >Create new project</el-radio>
+                <el-radio class="radio" 
+                          v-model="state.dstProjectMode" 
+                          label="existingProject"
+                          :disabled="state.action_process"
+                >Add to existing project</el-radio>
             </div>
             <div class="mt5">
                 <div v-if="state.dstProjectMode === 'newProject'">
-                    <el-input placeholder="Please input project name" v-model="state.dstProjectName"></el-input>
+                    <el-input 
+                        placeholder="Please input project name" 
+                        v-model="state.dstProjectName"
+                        :disabled="state.action_process"
+                    ></el-input>
                     <div class="mt5" style="color: #5a6772">
                         <i>If project with the same name already exists, a new name will be generated automatically</i>
                     </div>
@@ -63,6 +71,7 @@
                 <div v-if="state.dstProjectMode === 'existingProject'">
                     <el-select
                         v-model="state.selectedProjectId"
+                        :disabled="state.action_process"
                         @change="(val) => {
                             state.selectedProjectId = val; 
                             post('/select_dst_project/');
@@ -85,13 +94,17 @@
                 <el-radio class="radio"
                           v-model="state.dstDatasetMode"
                           label="existingDataset"
-                          :disabled="state.dstProjectMode === 'newProject'">
+                          :disabled="state.dstProjectMode === 'newProject' || state.action_process">
                     Add to existing dataset
                 </el-radio>
             </div>
             <div class="mt5">
                 <div v-if="state.dstDatasetMode === 'newDataset'">
-                    <el-input placeholder="Please input dataset name" v-model="state.dstDatasetName"></el-input>
+                    <el-input 
+                        placeholder="Please input dataset name" 
+                        v-model="state.dstDatasetName"
+                        :disabled="state.action_process"
+                    ></el-input>
                     <div class="mt5" style="color: #5a6772">
                         <i>If dataset with the same name already exists, a new name will be generated automatically</i>
                     </div>
@@ -99,6 +112,7 @@
                 <div v-if="state.dstDatasetMode === 'existingDataset'">
                     <el-select
                         v-model="state.selectedDatasetName"
+                        :disabled="state.action_process"
                         :loading="state.loadingDatasets"
                     >
                         <el-option
@@ -114,11 +128,143 @@
     </div>
 
     <div v-else-if="state.selected_action === 'Assign tag'">
-        <div>Tag name:</div>
-        <el-input
-            style="width:300px;margin:5px"
-            v-model="state.tag_to_add"
-        ></el-input>
+        <div>
+            <el-radio 
+                v-model="state.assign_tag_is_existing" 
+                :disabled="state.action_process"
+                label="false"
+                class="radio"
+            >New tag</el-radio>
+        </div>
+        <div class="mb10">
+            <el-radio 
+                v-model="state.assign_tag_is_existing" 
+                :disabled="state.action_process"
+                label="true"
+                class="radio"
+            >Existing tag</el-radio>
+        </div>
+
+        <div v-if="state.assign_tag_is_existing == 'true'">
+            <el-select
+                style="width:300px;margin:5px"
+                v-model="state.tag_to_assign"
+                :disabled="state.action_process"
+                @change="(val) => {
+                            state.tag_to_assign = val;
+                            post('/select_tag_to_assign/');
+                        }"
+            >
+                <el-option
+                    v-for="item in data.available_tags"
+                    :label="item.name"
+                    :key="item.name"
+                    :value="item.id"
+                    v-if="item.applicable_type == 'all' || item.applicable_type == 'imagesOnly'"
+                ></el-option>
+            </el-select>
+            <div class="filter-data" v-if="state.tag_to_assign_value_type == 'any_string'">
+                <div>Value:</div>
+                <el-input 
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    :disabled="state.action_process"
+                ></el-input>
+            </div>
+            <div class="filter-limits" v-else-if="state.tag_to_assign_value_type == 'any_number'">
+                <div>Value:</div>
+                <el-input-number
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    :disabled="state.action_process"
+                    step="0.001"
+                ></el-input-number>
+            </div>
+            <div class="filter-data" v-else-if="state.tag_to_assign_value_type == 'oneof_string'">
+                <div>Value:</div>
+                <el-select
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    :disabled="state.action_process"
+                >
+                    <el-option
+                        v-for="item in state.tag_to_assign_values"
+                        :label="item"
+                        :key="item"
+                        :value="item">
+                    </el-option>
+                </el-select>
+            </div>
+        </div>
+        <div v-else>
+            <div>Tag name:</div>
+            <el-input
+                style="width:300px;margin:5px"
+                :disabled="state.action_process"
+                v-model="state.tag_to_assign_name"
+            ></el-input>
+            <div>Tag value type:</div>
+            <el-select
+                style="width:300px;margin:5px"
+                v-model="state.tag_to_assign_value_type"
+                :disabled="state.action_process"
+                @change="post('/select_tag_to_assign/');"
+            >
+                <el-option
+                    v-for="item in state.tag_value_types"
+                    :label="item.name"
+                    :key="item.name"
+                    :value="item.value"
+                    v-if="item.value != 'oneof_string'"
+                ></el-option>
+            </el-select>
+            <div>Applicable to:</div>
+            <el-select
+                style="width:300px;margin:5px"
+                v-model="state.tag_to_assign_applicable_to"
+                :disabled="state.action_process"
+            >
+                <el-option
+                    v-for="item in state.tag_applicable_to_values"
+                    :label="item.name"
+                    :key="item.name"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <div v-if="state.tag_to_assign_value_type == 'any_string'">
+                <div>Value:</div>
+                <el-input 
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    :disabled="state.action_process"
+                ></el-input>
+            </div>
+            <div v-else-if="state.tag_to_assign_value_type == 'any_number'">
+                <div>Value:</div>
+                <el-input-number
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    :disabled="state.action_process"
+                    step="0.001"
+                ></el-input-number>
+            </div>
+            <div v-else-if="state.tag_to_assign_value_type == 'oneof_string'">
+                <div>Value:</div>
+                <el-select
+                    style="width:300px;margin:5px"
+                    v-model="state.tag_to_assign_value"
+                    multiple
+                    :disabled="state.action_process"
+                >
+                    <el-option
+                        v-for="item in state.tag_to_assign_values"
+                        :label="item"
+                        :key="item"
+                        :value="item">
+                    </el-option>
+                </el-select>
+            </div>
+        </div>
     </div>
 
     <div v-if="state.action_process" style="margin-bottom:10px">
@@ -152,7 +298,7 @@
         </el-button>
     </div>
     <div v-else>
-        <div style="margin-bottom:10px" v-if="!state.action_finished && !state.action_process">
+        <div style="margin:10px 0" v-if="!state.action_finished && !state.action_process">
             {{{ warning_before_action.to_html() }}}
         </div>
         <el-button

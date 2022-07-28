@@ -92,3 +92,33 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
     }
     state['scrollIntoView'] = 'pageTop'
     run_sync(state.synchronize_changes())
+
+@g.app.post('/select_tag_to_assign/')
+def tag_to_assign_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    if state['assign_tag_is_existing'] == 'true':
+        if state['tag_to_assign'] is None:
+            return
+        new_tag_id = state['tag_to_assign']
+        tag_data = None
+        for tag in DataJson()['available_tags']:
+            if tag['id'] == new_tag_id:
+                tag_data = tag
+                break
+
+        if tag_data is None:
+            supervisely.logger.warn(f"Not found tag with id: {new_tag_id}")
+            tag_data = DataJson()['available_tags'][0]
+
+        state['tag_to_assign_value_type'] = tag_data['value_type']
+
+    if state['tag_to_assign_value_type'] == str(supervisely.TagValueType.ANY_NUMBER):
+        state['tag_to_assign_value'] = 0
+    elif state['tag_to_assign_value_type'] == str(supervisely.TagValueType.ANY_STRING):
+        state['tag_to_assign_value'] = ''
+    elif state['tag_to_assign_value_type'] == str(supervisely.TagValueType.ONEOF_STRING):
+        # TODO: bug when new tag (currently not implemented)
+        state['tag_to_assign_values'] = tag_data["values"]
+        state['tag_to_assign_value'] = state['tag_to_assign_values'][0]
+    elif state['tag_to_assign_value_type'] == str(supervisely.TagValueType.NONE):
+        state['tag_to_assign_value'] = None
+    run_sync(state.synchronize_changes())

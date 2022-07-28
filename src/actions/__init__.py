@@ -13,7 +13,6 @@ DataJson()['available_actions'] = [
 
 StateJson()['selected_action'] = 'Copy / Move'
 StateJson()['action_process'] = False
-StateJson()['tag_to_add'] = ''
 StateJson()['loadingDatasets'] = False
 StateJson()['action_finished'] = False
 StateJson()['apply_text'] = 'APPLY'
@@ -32,3 +31,33 @@ DataJson()['dstProjectPreviewUrl'] = None
 DataJson()['dstDatasetMsg'] = ''
 DataJson()['available_dst_projects'] = []
 DataJson()['available_dst_datasets'] = []
+
+StateJson()['tag_applicable_to_values'] = [{
+    'name': 'Images and objects',
+    'value': 'all'
+},{
+    'name': 'Images only',
+    'value': 'imagesOnly'
+}]
+
+StateJson()['tag_value_types'] = [{
+    'name': 'None',
+    'value': 'none'
+},{
+    'name': 'Number',
+    'value': 'any_number'
+},{
+    'name': 'Text',
+    'value': 'any_string'
+},{
+    'name': 'One of',
+    'value': 'oneof_string'
+}]
+
+StateJson()['tag_to_assign_name'] = ''
+StateJson()['assign_tag_is_existing'] = 'false'
+StateJson()['tag_to_assign_applicable_to'] = StateJson()['tag_applicable_to_values'][0]['value']
+StateJson()['tag_to_assign'] = None
+StateJson()['tag_to_assign_value_type'] = StateJson()['tag_value_types'][0]['value']
+StateJson()['tag_to_assign_value'] = None
+StateJson()['tag_to_assign_values'] = []
