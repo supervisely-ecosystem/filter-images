@@ -41,6 +41,8 @@ App filters images from a project and allows you to copy, move, delete images an
 - `Tagged by annotator`: select images containing specified number of tags annotated by specified annotator.
 - `With issues`: select images containing specified number of issues with specified status.
 
+In addition, tag filter can be be configured with a specific value of tag or range of values (for numbers)
+
 You can add as many filter as you need. Filters will be combined with logical AND rule.
 
 4. Apply selected filters and explore the data in the table below.
