@@ -15,7 +15,7 @@ def build_queries_from_filters(state):
         filter_data['type'] = filter['type']
         filter_data['data'] = copy.deepcopy(filter['data'])
         if filter['type'] == 'images_filename' and filter['data']['value'] is None:
-            filter_data['data'] = {}
+            raise ValueError("Filename can't be empty!")
         elif filter['type'] == 'objects_annotator' and filter['data']['userId'] is None:
             filter_data['data'] = {}
         elif filter['type'] == 'tagged_by_annotator' and filter['data']['userId'] is None:
