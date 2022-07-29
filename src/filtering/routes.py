@@ -22,6 +22,8 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
         query = card_functions.build_queries_from_filters(state)
         images_list = card_functions.get_images(query)
     except Exception as e:
+        state['filtering'] = False
+        run_sync(state.synchronize_changes())
         raise HTTPException(500, repr(e))
     if len(images_list) == 0:
         state["empty_list"] = True
@@ -50,7 +52,6 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
 @g.app.post('/add_filter/')
 def add_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'].append(DataJson()['default_filter'])
-    state['objects_count_buttons_visible'].append(True)
     state['current_preset'] = 'Custom'
     run_sync(state.synchronize_changes())
 
@@ -58,7 +59,6 @@ def add_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.ap
 @g.app.post('/remove_all_filters/')
 def remove_all_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'] = []
-    state['objects_count_buttons_visible'] = []
     state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
     run_sync(state.synchronize_changes())
 
@@ -75,7 +75,6 @@ def selected_preset_changed(state: supervisely.app.StateJson = Depends(supervise
         supervisely.logger.warn(f"Not found filters for preset: {state['current_preset']}")
         current_preset_filters = []
     state['selected_filters'] = current_preset_filters
-    state['objects_count_buttons_visible'] = [True] * len(state['selected_filters'])
     run_sync(state.synchronize_changes())
 
 
@@ -91,30 +90,21 @@ def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervise
         supervisely.logger.warn(f"Not found filter with name: {state['selected_filter']}")
         selected_filter = DataJson()['default_filter']
     state['selected_filters'][state['filter_to_change']] = selected_filter
-    state['objects_count_buttons_visible'][state['filter_to_change']] = True
     run_sync(state.synchronize_changes())
 
 
 @g.app.post('/remove_filter/')
 def remove_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'].pop(state['filter_to_change'])
-    state['objects_count_buttons_visible'].pop(state['filter_to_change'])
     if len(state['selected_filters']) == 0:
         state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
     else:
         state['current_preset'] = 'Custom'
     run_sync(state.synchronize_changes())
 
-
-@g.app.post('/open_object_counts/')
-def open_object_counts_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['objects_count_buttons_visible'][state['filter_to_change']] = False
-    run_sync(state.synchronize_changes())
-
 @card_widgets.reselect_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def reselect_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     state['selected_filters'] = []
-    state['objects_count_buttons_visible'] = []
     state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
     state['current_step'] = DataJson()["steps"]["filtering"]
 

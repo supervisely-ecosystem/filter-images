@@ -20,7 +20,7 @@ def fill_table(images_list):
     ]
     content = []
     for image_info in images_list:
-        ann_tool_link = f'{g.api.server_address}/app/images/{g.TEAM_ID}/{g.WORKSPACE_ID}/{g.project["project_id"]}/{image_info.dataset_id}?page=1#image-{image_info.id}'
+        ann_tool_link = f'/app/images/{g.TEAM_ID}/{g.WORKSPACE_ID}/{g.project["project_id"]}/{image_info.dataset_id}?page=1#image-{image_info.id}'
         content.append([
             image_info.id,
             g.ds_id_to_name[image_info.dataset_id],

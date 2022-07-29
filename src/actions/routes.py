@@ -4,6 +4,7 @@ import supervisely
 
 import src.actions.widgets as card_widgets
 import src.actions.functions as card_functions
+import src.input_project.widgets as input_project_widgets
 
 from supervisely.app import DataJson, StateJson
 from supervisely.app.fastapi import run_sync
@@ -63,16 +64,16 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
     num_images = len(DataJson()['images_list'])
     if state['selected_action'] == 'Copy / Move':
         state['apply_text'] = f'APPLY TO {num_images} IMAGES'
-        card_widgets.warning_before_action.title = "Your source project data MAY BE CHANGED. Apply this action only if you're sure that all settings selected correctly."
+        card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure that all settings selected correctly."
     elif state['selected_action'] == 'Delete':
         state['apply_text'] = f'DELETE {num_images} IMAGES'
-        card_widgets.warning_before_action.title = "Your source project data WILL BE DELETED. Apply this action only if you're sure what you do."
+        card_widgets.warning_before_action.description = "Your source project data WILL BE DELETED. Apply this action only if you're sure what you do."
     elif state['selected_action'] == 'Assign tag':
         state['apply_text'] = f'ASSIGN TAG TO {num_images} IMAGES'
-        card_widgets.warning_before_action.title = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
+        card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     elif state['selected_action'] == 'Remove all tags':
         state['apply_text'] = f'REMOVE TAGS FROM {num_images} IMAGES'
-        card_widgets.warning_before_action.title = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
+        card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     run_sync(state.synchronize_changes())
     run_sync(DataJson().synchronize_changes())
 
@@ -91,7 +92,9 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
         "actions": True
     }
     state['scrollIntoView'] = 'pageTop'
+    input_project_widgets.project_selector.update_data()
     run_sync(state.synchronize_changes())
+    run_sync(DataJson().synchronize_changes())
 
 @g.app.post('/select_tag_to_assign/')
 def tag_to_assign_selected(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):

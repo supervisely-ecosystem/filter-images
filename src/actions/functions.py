@@ -43,11 +43,18 @@ def delete_images():
 def assign_tag(state):
     tag_value = state['tag_to_assign_value']
     if state['assign_tag_is_existing'] == 'true':
+        if state['tag_to_assign'] is None:
+            raise ValueError("Select existing tag to assign value!")
         tag_id = state['tag_to_assign']
     else:
+        if state['tag_to_assign_name'] == '':
+            raise ValueError("Tag name can't be empty!")
         possible_values = None
+
+        # TODO: currently is not supported
         if state['tag_to_assign_value_type'] == str(sly.TagValueType.ONEOF_STRING):
             possible_values = state['tag_to_assign_values']
+    
         new_tag_meta = sly.TagMeta(
             state['tag_to_assign_name'], 
             state['tag_to_assign_value_type'], 
@@ -101,6 +108,8 @@ def apply_action(state):
         ds_id = None
 
         if state['dstProjectMode'] == 'newProject':
+            if state["dstProjectName"] == '':
+                raise ValueError("Project name can't be empty!")
             project_info = g.api.project.create(g.project["workspace_id"], state["dstProjectName"], type=sly.ProjectType.IMAGES, change_name_if_conflict=True)
             project_id = project_info.id
             res_project_info = project_info
@@ -109,6 +118,8 @@ def apply_action(state):
             res_project_info = g.api.project.get_info_by_id(project_id)
 
         if state['dstDatasetMode'] == 'newDataset':
+            if state["dstDatasetName"] == '':
+                raise ValueError("Dataset name can't be empty!")
             dataset_info = g.api.dataset.create(project_id, state['dstDatasetName'])
             res_dataset_msg = f'Dataset: {dataset_info.name}'
         elif state['dstDatasetMode'] == 'existingDataset':

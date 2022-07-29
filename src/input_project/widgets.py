@@ -13,4 +13,4 @@ reselect_project_button = ElementButton(text='<i style="margin-right: 5px" class
                                          button_type='warning', button_size='small', plain=True)
 
 project_downloaded_done_label = DoneLabel(text="Project and datasets selected")
-ds_not_selected = NotificationBox('Datasets not selected.', box_type='error')
+ds_not_selected = NotificationBox(description='Datasets not selected.', box_type='error')

@@ -298,9 +298,10 @@
         </el-button>
     </div>
     <div v-else>
-        <div style="margin:10px 0" v-if="!state.action_finished && !state.action_process">
-            {{{ warning_before_action.to_html() }}}
-        </div>
+        <div 
+            style="margin:10px 0" 
+            v-if="!state.action_finished && !state.action_process && state.dstProjectMode !== 'newProject'"
+        >{{{ warning_before_action.to_html() }}}</div>
         <el-button
             type="primary"
             @click="post('/apply_action/');"
