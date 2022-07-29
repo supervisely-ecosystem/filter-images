@@ -15,6 +15,8 @@ def images_table_cell_clicked(state: StateJson = Depends(StateJson.from_request)
     state['loading_preview'] = True
     run_sync(state.synchronize_changes())
     selected_cell = card_widgets.images_table.get_selected_cell(state)
+    if selected_cell is None:
+        return
     
     card_functions.show_preview(selected_cell['row_data']['id'], state)
     state['loading_preview'] = False

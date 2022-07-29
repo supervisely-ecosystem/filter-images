@@ -160,7 +160,7 @@
                     :label="item.name"
                     :key="item.name"
                     :value="item.id"
-                    v-if="item.applicable_type == 'all' || item.applicable_type == 'imagesOnly'"
+                    v-if="(item.applicable_type == 'all' || item.applicable_type == 'imagesOnly') && item.name != 'Any tag'"
                 ></el-option>
             </el-select>
             <div class="filter-data" v-if="state.tag_to_assign_value_type == 'any_string'">
