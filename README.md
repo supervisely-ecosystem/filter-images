@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="https://github.com/supervisely-ecosystem/filter-images/releases/download/v0.0.0/filter_poster.png" style="width: 100%;"/>
+<img src="https://user-images.githubusercontent.com/48245050/182639333-55cf9c0d-d162-4ac8-8e2c-f14843de6782.png"/>
 
 # Filter images
 
