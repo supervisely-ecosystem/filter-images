@@ -123,10 +123,13 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
         new_readme_text += f'<div><b>Destination datasets:</b> Unknown</div>\n'
     
     new_readme_text += f'### Applied filters:\n'
-    for filter_idx, filter in enumerate(state['selected_filters']):
-        new_readme_text += f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
-        new_readme_text += f'<div><b>Filter type:</b> {filter["type"]}</div>\n'
-        new_readme_text += f'<div><b>Data:</b> {filter["data"]}</div>\n'
+    if not state['selected_filters']:
+        new_readme_text += f'<div><b>Name:</b> All images</div>\n'
+    else:
+        for filter_idx, filter in enumerate(state['selected_filters']):
+            new_readme_text += f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
+            new_readme_text += f'<div><b>Filter type:</b> {filter["type"]}</div>\n'
+            new_readme_text += f'<div><b>Data:</b> {filter["data"]}</div>\n'
 
 
     new_readme_text += '<hr />\n'
