@@ -49,6 +49,7 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
         g.project['dataset_ids'] = [g.api.dataset.get_info_by_name(g.project['project_id'], ds_name).id for ds_name in g.project['dataset_ids']]
     
     proj_info = g.api.project.get_info_by_id(g.project['project_id'])
+    g.project['name'] = proj_info.name
     DataJson()['project_name'] = proj_info.name
     DataJson()['projectPreviewUrl'] = g.api.image.preview_url(proj_info.reference_image_url, 100, 100)
     state['dstProjectId'] = g.project['project_id']

@@ -39,6 +39,7 @@ project_dir = os.path.join(app_data_dir, 'project_dir')
 project = {
     'workspace_id': None,
     'project_id': None,
+    'name': None,
     'dataset_ids': [],
     'dataset_names': [],
     'project_meta': None

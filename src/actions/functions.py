@@ -101,30 +101,37 @@ def remove_tags():
 
 def add_metadata_to_project_readme(res_project_info, dataset_info, action, state):
     current_readme = res_project_info.readme
-    new_readme_text = '<div>Project changed by Filter Images app:</div>\n'
+    new_readme_text = '### Project changed by Filter Images app:\n'
     if res_project_info.id == g.project['project_id']:
-        new_readme_text += '<div>Source project name: the same.</div>\n'
-        new_readme_text += '<div>Source project ID: the same.</div>\n'
+        new_readme_text += '<div><b>Source project name:</b> the same.</div>\n'
+        new_readme_text += '<div><b>Source project ID:</b> the same.</div>\n'
     else:
-        new_readme_text += f'<div>Source project name: {g.project["name"]}</div>\n'
-        new_readme_text += f'<div>Source project ID: {g.project["id"]}</div>\n'
+        new_readme_text += f'<div><b>Source project name:</b> {g.project["name"]}</div>\n'
+        new_readme_text += f'<div><b>Source project ID:</b> {g.project["project_id"]}</div>\n'
 
-    new_readme_text += f'<div>Source dataset names: {g.project["dataset_names"]}</div>\n'
-    new_readme_text += f'<div>Source dataset IDs: {g.project["dataset_ids"]}</div>\n'
+    new_readme_text += f'<div><b>Source dataset names:</b> {g.project["dataset_names"]}</div>\n'
+    new_readme_text += f'<div><b>Source dataset IDs:</b> {g.project["dataset_ids"]}</div>\n'
 
     if action != 'Copy / Move':
-        new_readme_text += f'<div>Applied action: {action.lower()}</div>\n'
+        new_readme_text += f'<div><b>Applied action:</b> {action.lower()}</div>\n'
     else:
-        new_readme_text += f'<div>Applied action: {state["move_or_copy"].lower()}</div>\n'
+        new_readme_text += f'<div><b>Applied action:</b> {state["move_or_copy"].lower()}</div>\n'
     if dataset_info is not None:
-        new_readme_text += f'<div>Changed dataset name: {dataset_info.name}</div>\n'
-        new_readme_text += f'<div>Changed dataset ID: {dataset_info.id}</div>\n'
+        new_readme_text += f'<div><b>Destination dataset name:</b> {dataset_info.name}</div>\n'
+        new_readme_text += f'<div><b>Destination dataset ID:</b> {dataset_info.id}</div>\n'
     else:
-        new_readme_text += f'<div>Changed datasets: Unknown\n'
+        new_readme_text += f'<div><b>Destination datasets:</b> Unknown</div>\n'
+    
+    new_readme_text += f'### Applied filters:\n'
+    for filter_idx, filter in enumerate(state['selected_filters']):
+        new_readme_text += f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
+        new_readme_text += f'<div><b>Filter type:</b> {filter["type"]}</div>\n'
+        new_readme_text += f'<div><b>Data:</b> {filter["data"]}</div>\n'
+
 
     new_readme_text += '<hr />\n'
     readme_text = current_readme + new_readme_text
-    g.api.project.edit_info(g.project['project_id'], readme=readme_text)
+    g.api.project.edit_info(res_project_info.id, readme=readme_text)
 
 
 def apply_action(state):
