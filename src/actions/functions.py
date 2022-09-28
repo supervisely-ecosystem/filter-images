@@ -133,7 +133,7 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
 
 
     new_readme_text += '<hr />\n'
-    readme_text = current_readme + new_readme_text
+    readme_text = current_readme + '\n' + new_readme_text
     g.api.project.edit_info(res_project_info.id, readme=readme_text)
 
 
