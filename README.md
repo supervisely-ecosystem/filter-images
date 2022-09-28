@@ -7,6 +7,7 @@
 <p align="center">
   <a href="#Overview">Overview</a> •
   <a href="#How-to-Use">How to Use</a> •
+  <a href="#Result-Project-Readme">Result Project Readme</a> •
   <a href="#Screenshot">Screenshot</a>
 </p>
 
@@ -55,12 +56,18 @@ You can add as many filter as you need. Filters will be combined with logical AN
 
 6. Be sure that you are correctly selected action and destination project / dataset (in `Copy / Move` action). If everything is ok, apply selected action.
 
-7. Check destination project that everything is ok. If you need to apply more actions, click `SELECT NEXT ACTION` button.
+7. Check destination project that everything is ok. If you need to apply more actions, click `SELECT NEXT ACTION` button. You can see metadata with filtering information in destination project Readme (see Result Project Readme below)
 
 8. If you got all results that you wanted, click `FINISH APP` button.
 
-
 Write to our technical support if you didn't find needed ways to filter your data.
+
+# Result Project Readme
+
+After successful filtering, click on 'Info' tab of project (see screenshot).
+Here you can see all applied filters and actions to your project.
+
+<img src="https://user-images.githubusercontent.com/97401023/192784431-24353ca1-6502-4d5e-958f-87505443c7f8.png" />
 
 # Screenshot
 
