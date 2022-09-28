@@ -27,7 +27,9 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     # TODO: fix project selector 'AllDatasets' checkbox - can't know when checked
     # TODO: fix project selector widget: ds name instead of id
     if not g.project['dataset_ids']:
-        g.project['dataset_ids'] = [dataset.id for dataset in g.api.dataset.get_list(g.project['project_id'])]           
+        ds_infos = g.api.dataset.get_list(g.project['project_id'])
+        g.project['dataset_names'] = [dataset.name for dataset in ds_infos]   
+        g.project['dataset_ids'] = [dataset.id for dataset in ds_infos]           
         DataJson()['ds_names'] = "All datasets"
     else:
         # TODO: will work when project selector will be fixed
@@ -43,6 +45,7 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
         elif len(g.project['dataset_ids']) == 1:
             DataJson()['ds_names'] = f'Dataset: {g.project["dataset_ids"][0]}'
         state['dstDatasetName'] = g.project['dataset_ids'][0]
+        g.project['dataset_names'] = g.project['dataset_ids'].copy()
         g.project['dataset_ids'] = [g.api.dataset.get_info_by_name(g.project['project_id'], ds_name).id for ds_name in g.project['dataset_ids']]
     
     proj_info = g.api.project.get_info_by_id(g.project['project_id'])

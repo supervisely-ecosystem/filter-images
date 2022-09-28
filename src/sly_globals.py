@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from supervisely.sly_logger import logger
 from starlette.staticfiles import StaticFiles
 
@@ -40,6 +40,7 @@ project = {
     'workspace_id': None,
     'project_id': None,
     'dataset_ids': [],
+    'dataset_names': [],
     'project_meta': None
 }
 

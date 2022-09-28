@@ -99,6 +99,34 @@ def remove_tags():
             g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids_per_ds, progress_cb=pbar.update)
 
 
+def add_metadata_to_project_readme(res_project_info, dataset_info, action, state):
+    current_readme = res_project_info.readme
+    new_readme_text = '<div>Project changed by Filter Images app:</div>\n'
+    if res_project_info.id == g.project['project_id']:
+        new_readme_text += '<div>Source project name: the same.</div>\n'
+        new_readme_text += '<div>Source project ID: the same.</div>\n'
+    else:
+        new_readme_text += f'<div>Source project name: {g.project["name"]}</div>\n'
+        new_readme_text += f'<div>Source project ID: {g.project["id"]}</div>\n'
+
+    new_readme_text += f'<div>Source dataset names: {g.project["dataset_names"]}</div>\n'
+    new_readme_text += f'<div>Source dataset IDs: {g.project["dataset_ids"]}</div>\n'
+
+    if action != 'Copy / Move':
+        new_readme_text += f'<div>Applied action: {action.lower()}</div>\n'
+    else:
+        new_readme_text += f'<div>Applied action: {state["move_or_copy"].lower()}</div>\n'
+    if dataset_info is not None:
+        new_readme_text += f'<div>Changed dataset name: {dataset_info.name}</div>\n'
+        new_readme_text += f'<div>Changed dataset ID: {dataset_info.id}</div>\n'
+    else:
+        new_readme_text += f'<div>Changed datasets: Unknown\n'
+
+    new_readme_text += '<hr />\n'
+    readme_text = current_readme + new_readme_text
+    g.api.project.edit_info(g.project['project_id'], readme=readme_text)
+
+
 def apply_action(state):
     action = state["selected_action"]
     res_project_info = None
@@ -142,9 +170,13 @@ def apply_action(state):
         raise ValueError(f'Action is not supported to use: {action}')
 
     if action != 'Copy / Move':
+        dataset_info = None
         res_project_info = g.api.project.get_info_by_id(g.project['project_id'])
         if len(g.project["dataset_ids"]) == 1:
             res_dataset_msg = DataJson()['ds_names']
         elif len(g.project["dataset_ids"]) > 1:
-            res_dataset_msg = f'Several datasets'
+            res_dataset_msg = 'Several datasets'
+    
+    add_metadata_to_project_readme(res_project_info, dataset_info, action, state)
+
     return res_project_info, res_dataset_msg
