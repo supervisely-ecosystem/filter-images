@@ -99,6 +99,39 @@ def remove_tags():
             g.api.advanced.remove_tags_from_images(project_meta_tags, image_ids_per_ds, progress_cb=pbar.update)
 
 
+def data_to_readable_format(data):
+    data_to_display = '<div><b>Data:</b></div>\n'
+    for field, field_data in data.items():
+        if field == "tagId":
+            for tag_dict in DataJson()['available_tags']:
+                if field_data == tag_dict['id']:
+                    data_to_display += f'<div>tag: {tag_dict["name"]}</div>\n'
+        elif field == "tagClassId":
+            for class_dict in DataJson()['available_classes']:
+                if field_data == class_dict['id']:
+                    data_to_display += f'<div>class: {class_dict["name"]}</div>\n'
+        elif field == "classId":
+            for class_dict in DataJson()['available_classes']:
+                if field_data == class_dict['id']:
+                    data_to_display += f'<div>class: {class_dict["name"]}</div>\n'
+        elif field == "userId":
+            for user_dict in DataJson()['available_annotators']:
+                if field_data == user_dict['id']:
+                    data_to_display += f'<div>annotator: {user_dict["name"]}</div>\n'
+        elif field == "status":
+            for status_dict in DataJson()['issue_statuses']:
+                if field_data == status_dict['value']:
+                    data_to_display += f'<div>status: {status_dict["name"]}</div>\n'
+        elif field == "from":
+            data_to_display += f'<div>countFrom: {field_data}</div>\n'
+        elif field == "to":
+            data_to_display += f'<div>countTo: {field_data}</div>\n'
+        else:
+            data_to_display += f'<div>{field}: {str(field_data)}</div>\n'
+    return data_to_display
+
+
+
 def add_metadata_to_project_readme(res_project_info, dataset_info, action, state):
     current_readme = res_project_info.readme
     new_readme_text = '### Project changed by Filter Images app:\n'
@@ -129,7 +162,8 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
         for filter_idx, filter in enumerate(state['selected_filters']):
             new_readme_text += f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
             new_readme_text += f'<div><b>Filter type:</b> {filter["type"]}</div>\n'
-            new_readme_text += f'<div><b>Data:</b> {filter["data"]}</div>\n'
+            data = data_to_readable_format(filter["data"])
+            new_readme_text += data
 
 
     new_readme_text += '<hr />\n'
