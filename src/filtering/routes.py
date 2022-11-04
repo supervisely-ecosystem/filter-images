@@ -33,7 +33,12 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     else:
         state["empty_list"] = False
     DataJson()['images_list'] = images_list
-    table_functions.fill_table(images_list)
+    if len(images_list) > g.TABLE_IMAGES_LIMIT:
+        table_images = images_list[:g.TABLE_IMAGES_LIMIT]
+        state['show_images_limit_warn'] = True
+    else:
+        table_images = images_list
+    table_functions.fill_table(table_images)
     first_row = table_widgets.images_table.get_json_data()['table_data']['data'][0]
     id_col_index = table_widgets.images_table.get_json_data()['table_data']['columns'].index('id')
     table_functions.show_preview(first_row[id_col_index], state) 

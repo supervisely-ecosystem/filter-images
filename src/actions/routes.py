@@ -92,6 +92,7 @@ def dst_project_selected(state: supervisely.app.StateJson = Depends(supervisely.
         "actions": True
     }
     state['scrollIntoView'] = 'pageTop'
+    state['show_images_limit_warn'] = False
     input_project_widgets.project_selector.update_data()
     run_sync(state.synchronize_changes())
     run_sync(DataJson().synchronize_changes())

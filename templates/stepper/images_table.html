@@ -7,6 +7,10 @@
               :collapsed.sync="state.collapsed_steps.images_table"
               :disabled="{disabled: state.current_step < data.steps.images_table, message: 'complete all previous steps to unlock'}"
     >
+
+        <el-tag v-if="state.show_images_limit_warn" type="warning">
+            Only {{data.table_images_limit}} from {{data.images_list.length}} images is shown in the table. All of {{data.images_list.length}} images will be selected for applying actions below.
+        </el-tag>
         {{{ images_table.to_html() }}}
     </sly-card>
     <sly-card title="Image Preview"
