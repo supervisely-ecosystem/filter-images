@@ -20,24 +20,23 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     run_sync(state.synchronize_changes())
     try:
         query = card_functions.build_queries_from_filters(state)
-        images_list = card_functions.get_images(query)
+        g.images_list = card_functions.get_images(query)
     except Exception as e:
         state['filtering'] = False
         run_sync(state.synchronize_changes())
         raise HTTPException(500, repr(e))
-    if len(images_list) == 0:
+    if len(g.images_list) == 0:
         state["empty_list"] = True
         state['filtering'] = False
         run_sync(state.synchronize_changes())
         return
     else:
         state["empty_list"] = False
-    DataJson()['images_list'] = images_list
-    if len(images_list) > g.TABLE_IMAGES_LIMIT:
-        table_images = images_list[:g.TABLE_IMAGES_LIMIT]
+    if len(g.images_list) > g.TABLE_IMAGES_LIMIT:
+        table_images = g.images_list[:g.TABLE_IMAGES_LIMIT]
         state['show_images_limit_warn'] = True
     else:
-        table_images = images_list
+        table_images = g.images_list
     table_functions.fill_table(table_images)
     first_row = table_widgets.images_table.get_json_data()['table_data']['data'][0]
     id_col_index = table_widgets.images_table.get_json_data()['table_data']['columns'].index('id')
@@ -45,7 +44,7 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     
     state['dstDatasetName'] = 'ds0'
     state['filtering'] = False
-    state['apply_text'] = f'APPLY TO {len(images_list)} IMAGES'
+    state['apply_text'] = f'APPLY TO {len(g.images_list)} IMAGES'
 
     state['current_step'] += 2
     state['collapsed_steps']["images_table"] = False

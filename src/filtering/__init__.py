@@ -189,5 +189,3 @@ StateJson()['filter_to_change'] = None
 StateJson()['filtering'] = False
 StateJson()['empty_list'] = False
 StateJson()['available_tag_values'] = []
-
-DataJson()['images_list'] = []

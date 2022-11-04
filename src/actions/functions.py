@@ -5,9 +5,8 @@ import src.sly_globals as g
 import src.actions.widgets as card_widgets
 
 def copy_images(ds_id):
-    images_list = DataJson()['images_list']
     image_ids = {}
-    for image in images_list:
+    for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
@@ -17,9 +16,8 @@ def copy_images(ds_id):
             g.api.image.copy_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def move_images(ds_id):
-    images_list = DataJson()['images_list']
     image_ids = {}
-    for image in images_list:
+    for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
@@ -29,9 +27,8 @@ def move_images(ds_id):
             g.api.image.move_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
 def delete_images():
-    images_list = DataJson()['images_list']
     image_ids = {}
-    for image in images_list:
+    for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
@@ -72,9 +69,8 @@ def assign_tag(state):
                 tag_id = tag_obj.sly_id
                 break
         
-    images_list = DataJson()['images_list']
     image_ids = {}
-    for image in images_list:
+    for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
@@ -85,9 +81,8 @@ def assign_tag(state):
 
 
 def remove_tags():
-    images_list = DataJson()['images_list']
     image_ids = {}
-    for image in images_list:
+    for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)

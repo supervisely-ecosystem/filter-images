@@ -46,6 +46,7 @@ project = {
 }
 
 ds_id_to_name = {}
+images_list = []
 TABLE_IMAGES_LIMIT = 1000
 
 DataJson()['steps'] = OrderedDict({
