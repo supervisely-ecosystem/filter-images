@@ -6,8 +6,7 @@ from supervisely import logger
 import src.input_project.widgets as card_widgets
 import src.filtering.functions as filtering_functions
 
-from supervisely.app import DataJson
-from supervisely.app.fastapi import run_sync
+from supervisely.app import DataJson, StateJson
 from supervisely.app.widgets import ElementButton
 
 import src.sly_globals as g
@@ -17,7 +16,7 @@ import src.sly_globals as g
 def download_selected_project(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     card_widgets.download_project_button.loading = True
 
-    run_sync(DataJson().synchronize_changes())
+    DataJson().send_changes()
 
     g.project['workspace_id'] = card_widgets.project_selector.get_selected_workspace_id(state)
     g.project['project_id'] = card_widgets.project_selector.get_selected_project_id(state)
@@ -34,17 +33,17 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     else:
         # TODO: will work when project selector will be fixed
         if not g.project['dataset_ids']:
-            state["ds_not_selected"] = True
-            run_sync(state.synchronize_changes())
+            StateJson()["ds_not_selected"] = True
+            StateJson().send_changes()
             return
         else:
-            state["ds_not_selected"] = False
+            StateJson()["ds_not_selected"] = False
         # TODO: remove when fix upper will be done
         if len(g.project['dataset_ids']) > 1:
             DataJson()['ds_names'] = "Several datasets"
         elif len(g.project['dataset_ids']) == 1:
             DataJson()['ds_names'] = f'Dataset: {g.project["dataset_ids"][0]}'
-        state['dstDatasetName'] = g.project['dataset_ids'][0]
+        StateJson()['dstDatasetName'] = g.project['dataset_ids'][0]
         g.project['dataset_names'] = g.project['dataset_ids'].copy()
         g.project['dataset_ids'] = [g.api.dataset.get_info_by_name(g.project['project_id'], ds_name).id for ds_name in g.project['dataset_ids']]
     
@@ -52,9 +51,9 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     g.project['name'] = proj_info.name
     DataJson()['project_name'] = proj_info.name
     DataJson()['projectPreviewUrl'] = g.api.image.preview_url(proj_info.reference_image_url, 100, 100)
-    state['dstProjectId'] = g.project['project_id']
-    state['selectedProjectId'] = g.project['project_id']
-    state['workspaceId'] = g.project['workspace_id']
+    StateJson()['dstProjectId'] = g.project['project_id']
+    StateJson()['selectedProjectId'] = g.project['project_id']
+    StateJson()['workspaceId'] = g.project['workspace_id']
 
     datasets = g.api.dataset.get_list(g.project['project_id'])
     g.ds_id_to_name = {dataset.id: dataset.name for dataset in datasets}
@@ -68,18 +67,18 @@ def download_selected_project(state: supervisely.app.StateJson = Depends(supervi
     filtering_functions.get_available_classes_and_tags(project_meta)
     filtering_functions.get_available_annotators(team_users)
 
-    state['current_step'] += 1
-    state['collapsed_steps']["filtering"] = False
+    StateJson()['current_step'] += 1
+    StateJson()['collapsed_steps']["filtering"] = False
     card_widgets.download_project_button.loading = False
 
-    run_sync(DataJson().synchronize_changes())
-    run_sync(state.synchronize_changes())
+    DataJson().send_changes()
+    StateJson().send_changes()
 
 
 @card_widgets.reselect_project_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def reselect_project_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     card_widgets.project_selector.disabled = False
 
-    state['current_step'] = DataJson()["steps"]["input_project"]
+    StateJson()['current_step'] = DataJson()["steps"]["input_project"]
 
-    run_sync(DataJson().synchronize_changes())
+    StateJson().send_changes()

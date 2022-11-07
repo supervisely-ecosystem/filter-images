@@ -16,7 +16,6 @@
 <div id="sly-app">
     <sly-app>
         <template v-slot="{ post, state, data }">
-            <h3 id="pageTop">Filter images</h3>
             <sly-stepper :active="state.current_step">
                 <sly-stepper-item> {% include 'stepper/input_project.html' %}</sly-stepper-item>
                 <sly-stepper-item> {% include 'stepper/filtering.html' %}</sly-stepper-item>

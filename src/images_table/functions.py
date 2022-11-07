@@ -1,8 +1,7 @@
 
 import src.images_table.widgets as card_widgets
 import src.sly_globals as g
-from supervisely.app import DataJson
-from supervisely.app.fastapi import run_sync
+from supervisely.app import DataJson, StateJson
 
 import supervisely
 
@@ -53,13 +52,13 @@ def stringify_label_tags(tags):
     return final_message
 
 
-def show_preview(image_id, state):
+def show_preview(image_id):
     card_widgets.images_gallery.loading = True
     card_widgets.images_gallery.clean_up()
 
     image_info = g.api.image.get_info_by_id(image_id)
     ann_json = g.api.annotation.download_json(image_id)
-    state['current_item_name'] = image_info.name
+    StateJson()['current_item_name'] = image_info.name
     ann = supervisely.Annotation.from_json(ann_json, g.project["project_meta"])
     img_url = image_info.full_storage_url
 

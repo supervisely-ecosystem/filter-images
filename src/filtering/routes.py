@@ -8,7 +8,6 @@ import src.images_table.functions as table_functions
 import src.images_table.widgets as table_widgets
 
 from supervisely.app import DataJson, StateJson
-from supervisely.app.fastapi import run_sync
 from supervisely.app.widgets import ElementButton
 
 import src.sly_globals as g
@@ -16,60 +15,60 @@ import src.sly_globals as g
 
 @g.app.post('/apply_filters/')
 def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['filtering'] = True
-    run_sync(state.synchronize_changes())
+    StateJson()['filtering'] = True
+    StateJson().send_changes()
     try:
         query = card_functions.build_queries_from_filters(state)
         g.images_list = card_functions.get_images(query)
     except Exception as e:
-        state['filtering'] = False
-        run_sync(state.synchronize_changes())
+        StateJson()['filtering'] = False
+        StateJson().send_changes()
         raise HTTPException(500, repr(e))
     if len(g.images_list) == 0:
-        state["empty_list"] = True
-        state['filtering'] = False
-        run_sync(state.synchronize_changes())
+        StateJson()["empty_list"] = True
+        StateJson()['filtering'] = False
+        StateJson().send_changes()
         return
     else:
-        state["empty_list"] = False
+        StateJson()["empty_list"] = False
     if len(g.images_list) > g.TABLE_IMAGES_LIMIT:
         table_images = g.images_list[:g.TABLE_IMAGES_LIMIT]
-        state['show_images_limit_warn'] = True
+        StateJson()['show_images_limit_warn'] = True
     else:
         table_images = g.images_list
+    DataJson()["images_list_len"] = len(g.images_list)
     table_functions.fill_table(table_images)
     first_row = table_widgets.images_table.get_json_data()['table_data']['data'][0]
     id_col_index = table_widgets.images_table.get_json_data()['table_data']['columns'].index('id')
-    table_functions.show_preview(first_row[id_col_index], state) 
-    
-    state['dstDatasetName'] = 'ds0'
-    state['filtering'] = False
-    state['apply_text'] = f'APPLY TO {len(g.images_list)} IMAGES'
+    table_functions.show_preview(first_row[id_col_index]) 
+    DataJson().send_changes()
+    StateJson()['dstDatasetName'] = 'ds0'
+    StateJson()['filtering'] = False
+    StateJson()['apply_text'] = f'APPLY TO {DataJson()["images_list_len"]} IMAGES'
 
-    state['current_step'] += 2
-    state['collapsed_steps']["images_table"] = False
-    state['collapsed_steps']["actions"] = False
-    run_sync(state.synchronize_changes())
-    run_sync(DataJson().synchronize_changes())
+    StateJson()['current_step'] += 2
+    StateJson()['collapsed_steps']["images_table"] = False
+    StateJson()['collapsed_steps']["actions"] = False
+    StateJson().send_changes()
 
 
 @g.app.post('/add_filter/')
 def add_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['selected_filters'].append(DataJson()['default_filter'])
-    state['current_preset'] = 'Custom'
-    run_sync(state.synchronize_changes())
+    StateJson()['selected_filters'].append(DataJson()['default_filter'])
+    StateJson()['current_preset'] = 'Custom'
+    StateJson().send_changes()
 
 
 @g.app.post('/remove_all_filters/')
 def remove_all_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['selected_filters'] = []
-    state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
-    run_sync(state.synchronize_changes())
+    StateJson()['selected_filters'] = []
+    StateJson()['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
+    StateJson().send_changes()
 
 
 @g.app.post('/select_preset/')
 def selected_preset_changed(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    if state['current_preset'] == 'Custom':
+    if StateJson()['current_preset'] == 'Custom':
         return
     current_preset_filters = None
     for preset in DataJson()['available_presets']:
@@ -78,8 +77,8 @@ def selected_preset_changed(state: supervisely.app.StateJson = Depends(supervise
     if current_preset_filters is None:
         supervisely.logger.warn(f"Not found filters for preset: {state['current_preset']}")
         current_preset_filters = []
-    state['selected_filters'] = current_preset_filters
-    run_sync(state.synchronize_changes())
+    StateJson()['selected_filters'] = current_preset_filters
+    StateJson().send_changes()
 
 
 @g.app.post('/select_filter/')
@@ -93,26 +92,26 @@ def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervise
     if selected_filter is None:
         supervisely.logger.warn(f"Not found filter with name: {state['selected_filter']}")
         selected_filter = DataJson()['default_filter']
-    state['selected_filters'][state['filter_to_change']] = selected_filter
-    run_sync(state.synchronize_changes())
+    StateJson()['selected_filters'][state['filter_to_change']] = selected_filter
+    StateJson().send_changes()
 
 
 @g.app.post('/remove_filter/')
 def remove_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['selected_filters'].pop(state['filter_to_change'])
+    StateJson()['selected_filters'].pop(state['filter_to_change'])
     if len(state['selected_filters']) == 0:
-        state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
+        StateJson()['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
     else:
-        state['current_preset'] = 'Custom'
-    run_sync(state.synchronize_changes())
+        StateJson()['current_preset'] = 'Custom'
+    StateJson().send_changes()
 
 @card_widgets.reselect_filters_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def reselect_filters_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
-    state['selected_filters'] = []
-    state['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
-    state['current_step'] = DataJson()["steps"]["filtering"]
+    StateJson()['selected_filters'] = []
+    StateJson()['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
+    StateJson()['current_step'] = DataJson()["steps"]["filtering"]
 
-    run_sync(state.synchronize_changes())
+    StateJson().send_changes()
 
 @g.app.post('/select_tag/')
 def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
@@ -127,18 +126,18 @@ def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervise
         supervisely.logger.warn(f"Not found tag with id: {new_tag_id}")
         tag_data = DataJson()['available_tags'][0]
 
-    state['selected_filters'][state['filter_to_change']]['data']['valueType'] = tag_data['value_type']
+    StateJson()['selected_filters'][state['filter_to_change']]['data']['valueType'] = tag_data['value_type']
 
     if tag_data['value_type'] == str(supervisely.TagValueType.ANY_NUMBER):
-        state['selected_filters'][state['filter_to_change']]['data']['value'] = {
+        StateJson()['selected_filters'][state['filter_to_change']]['data']['value'] = {
             'from': 0.0, 
             'to': 1.0
         }
     elif tag_data['value_type'] == str(supervisely.TagValueType.ANY_STRING):
-        state['selected_filters'][state['filter_to_change']]['data']['value'] = ''
+        StateJson()['selected_filters'][state['filter_to_change']]['data']['value'] = ''
     elif tag_data['value_type'] == str(supervisely.TagValueType.ONEOF_STRING):
-        state['available_tag_values'] = tag_data["values"]
-        state['selected_filters'][state['filter_to_change']]['data']['value'] = []
+        StateJson()['available_tag_values'] = tag_data["values"]
+        StateJson()['selected_filters'][state['filter_to_change']]['data']['value'] = []
     elif tag_data['value_type'] == str(supervisely.TagValueType.NONE):
-        state['selected_filters'][state['filter_to_change']]['data']['value'] = None
-    run_sync(state.synchronize_changes())
+        StateJson()['selected_filters'][state['filter_to_change']]['data']['value'] = None
+    StateJson().send_changes()
