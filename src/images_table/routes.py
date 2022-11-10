@@ -17,7 +17,7 @@ def images_table_cell_clicked(state: StateJson = Depends(StateJson.from_request)
     if selected_cell is None:
         return
     
-    card_functions.show_preview(selected_cell['row_data']['id'], state)
+    card_functions.show_preview(selected_cell['row_data']['id'])
     StateJson()['loading_preview'] = False
     DataJson().send_changes()
     StateJson().send_changes()
