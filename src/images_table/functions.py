@@ -27,9 +27,9 @@ def fill_table(images_list):
             f'<a href="javascript:;">PREVIEW</a>'
         ])
     if len(content) > 0:
-        card_widgets.images_table1.read_json({'data': content, 'columns': columns})
+        card_widgets.images_table.read_json({'data': content, 'columns': columns})
     else:
-        card_widgets.images_table1.read_json({'data':[], 'columns':[]})
+        card_widgets.images_table.read_json({'data':[], 'columns':[]})
 
 
 def stringify_label_tags(tags):
