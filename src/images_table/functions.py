@@ -13,8 +13,6 @@ def fill_table(images_list):
         'item name',
         'image',
         'objects number',
-        'height',
-        'width',
         'show'
     ]
     content = []
@@ -26,8 +24,6 @@ def fill_table(images_list):
             image_info.name,
             f'<a href="{ann_tool_link}" rel="noopener noreferrer" target="_blank">open in annotaion tool<i class="zmdi zmdi-open-in-new" style="margin-left: 5px"></i></a>',
             image_info.labels_count,
-            image_info.height,
-            image_info.width,
             f'<a href="javascript:;">PREVIEW</a>'
         ])
     if len(content) > 0:
@@ -56,7 +52,7 @@ def show_preview(image_id):
     card_widgets.images_gallery.loading = True
     card_widgets.images_gallery.clean_up()
 
-    image_info = g.api.image.get_info_by_id(image_id)
+    image_info = g.api.image.get_info_by_id(image_id, force_metadata_for_links=False)
     ann_json = g.api.annotation.download_json(image_id)
     StateJson()['current_item_name'] = image_info.name
     ann = supervisely.Annotation.from_json(ann_json, g.project["project_meta"])

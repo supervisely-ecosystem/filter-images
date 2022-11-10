@@ -40,7 +40,7 @@ def build_queries_from_filters(state):
 def get_images(queries):
     images_list = []
     for query in queries:
-        ds_images = g.api.image.get_filtered_list(query["datasetId"], query["filters"])
+        ds_images = g.api.image.get_filtered_list(query["datasetId"], query["filters"], force_metadata_for_links=False)
         images_list.extend(ds_images)
 
     return images_list
