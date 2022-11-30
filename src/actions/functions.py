@@ -4,27 +4,58 @@ import supervisely as sly
 import src.sly_globals as g
 import src.actions.widgets as card_widgets
 
+# @sly.timeit
 def copy_images(ds_id):
-    image_ids = {}
+    images = {}
     for image in g.images_list:
-        if image.dataset_id not in image_ids.keys():
-            image_ids[image.dataset_id] = []
-        image_ids[image.dataset_id].append(image.id)
-    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
-    with card_widgets.action_progress(message='Copying images...', total=image_ids_len) as pbar:
-        for image_ids_per_ds in image_ids.values():
-            g.api.image.copy_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+        if image.dataset_id not in images.keys():
+            images[image.dataset_id] = []
+        images[image.dataset_id].append(image)
+    images_len = sum([len(images_per_ds) for images_per_ds in images.values()])
+    with card_widgets.action_progress(message='Copying images...', total=images_len) as pbar:
+        for src_ds_id, images_per_ds in images.items():
+            g.api.image.copy_batch_optimized(src_ds_id, images_per_ds, ds_id, with_annotations=True, progress_cb=pbar.update)
 
+# Old implementation for speed measurement
+#
+# @sly.timeit
+# def copy_images(ds_id):
+#     images = {}
+#     for image in g.images_list:
+#         if image.dataset_id not in images.keys():
+#             images[image.dataset_id] = []
+#         images[image.dataset_id].append(image.id)
+#     images_len = sum([len(images_per_ds) for images_per_ds in images.values()])
+#     with card_widgets.action_progress(message='Copying images...', total=images_len) as pbar:
+#         for src_ds_id, images_per_ds in images.items():
+#             g.api.image.copy_batch(ds_id, images_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+
+# @sly.timeit
 def move_images(ds_id):
-    image_ids = {}
+    images = {}
     for image in g.images_list:
-        if image.dataset_id not in image_ids.keys():
-            image_ids[image.dataset_id] = []
-        image_ids[image.dataset_id].append(image.id)
-    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
-    with card_widgets.action_progress(message='Moving images...', total=image_ids_len) as pbar:
-        for image_ids_per_ds in image_ids.values():
-            g.api.image.move_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+        if image.dataset_id not in images.keys():
+            images[image.dataset_id] = []
+        images[image.dataset_id].append(image)
+    images_len = sum([len(images_per_ds) for images_per_ds in images.values()])
+    with card_widgets.action_progress(message='Moving images...', total=images_len) as pbar:
+        for src_ds_id, images_per_ds in images.items():
+            g.api.image.move_batch_optimized(src_ds_id, images_per_ds, ds_id, with_annotations=True, progress_cb=pbar.update)
+
+# Old implementation for speed measurement
+#
+# @sly.timeit
+# def move_images(ds_id):
+#     image_ids = {}
+#     for image in g.images_list:
+#         if image.dataset_id not in image_ids.keys():
+#             image_ids[image.dataset_id] = []
+#         image_ids[image.dataset_id].append(image.id)
+#     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+#     with card_widgets.action_progress(message='Moving images...', total=image_ids_len) as pbar:
+#         for image_ids_per_ds in image_ids.values():
+#             g.api.image.move_batch(ds_id, image_ids_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
+
 
 def delete_images():
     image_ids = {}
@@ -35,7 +66,7 @@ def delete_images():
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
     with card_widgets.action_progress(message='Deleting images...', total=image_ids_len) as pbar:
         for image_ids_per_ds in image_ids.values():
-            g.api.image.remove_batch(image_ids_per_ds, progress_cb=pbar.update)
+            g.api.image.remove_batch(image_ids_per_ds, progress_cb=pbar.update, batch_size=500)
 
 def assign_tag(state):
     tag_value = state['tag_to_assign_value']
