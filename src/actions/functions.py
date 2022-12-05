@@ -7,14 +7,17 @@ import src.actions.widgets as card_widgets
 # @sly.timeit
 def copy_images(ds_id):
     images = {}
-    for image in g.images_list:
+    digits = len(str(len(g.images_list)))
+    for idx, image in enumerate(g.images_list):
         if image.dataset_id not in images.keys():
-            images[image.dataset_id] = []
-        images[image.dataset_id].append(image)
-    images_len = sum([len(images_per_ds) for images_per_ds in images.values()])
+            images[image.dataset_id] = {"images": [], "names": []}
+        images[image.dataset_id]["images"].append(image)
+        new_name = f"{str(idx).zfill(digits)}_{image.name}"
+        images[image.dataset_id]["names"].append(new_name)
+    images_len = sum([len(images_per_ds["images"]) for images_per_ds in images.values()])
     with card_widgets.action_progress(message='Copying images...', total=images_len) as pbar:
         for src_ds_id, images_per_ds in images.items():
-            g.api.image.copy_batch_optimized(src_ds_id, images_per_ds, ds_id, with_annotations=True, progress_cb=pbar.update)
+            g.api.image.copy_batch_optimized(src_ds_id, images_per_ds["images"], ds_id, with_annotations=True, progress_cb=pbar.update, dst_names=images_per_ds["names"])
 
 # Old implementation for speed measurement
 #
@@ -218,7 +221,7 @@ def apply_action(state):
         if state['dstDatasetMode'] == 'newDataset':
             if state["dstDatasetName"] == '':
                 raise ValueError("Dataset name can't be empty!")
-            dataset_info = g.api.dataset.create(project_id, state['dstDatasetName'])
+            dataset_info = g.api.dataset.create(project_id, state['dstDatasetName'], change_name_if_conflict=True)
             res_dataset_msg = f'Dataset: {dataset_info.name}'
         elif state['dstDatasetMode'] == 'existingDataset':
             dataset_info = g.api.dataset.get_info_by_name(project_id, state['selectedDatasetName'])
