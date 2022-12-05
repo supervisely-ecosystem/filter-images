@@ -57,7 +57,7 @@ def filtering_finished(future):
     if future.exception():
         logger.warn(repr(future.exception()))
     else:
-        print("action finished")
+        print("filtering finished")
     
 
 @g.app.post('/apply_filters/')
