@@ -62,3 +62,9 @@ StateJson()['collapsed_steps'] = {
     "images_table": True,
     "actions": True
 }
+
+import asyncio
+import concurrent
+
+executor = concurrent.futures.ThreadPoolExecutor()
+loop = asyncio.get_event_loop()
