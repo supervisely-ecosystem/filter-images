@@ -9,12 +9,13 @@ import src.images_table.widgets as table_widgets
 
 from supervisely.app import DataJson, StateJson
 from supervisely.app.widgets import ElementButton
+from supervisely import logger
 
 import src.sly_globals as g
+import asyncio
 
 
-@g.app.post('/apply_filters/')
-def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+def apply_filters_long(state: supervisely.app.StateJson):
     StateJson()['filtering'] = True
     StateJson().send_changes()
     try:
@@ -51,6 +52,20 @@ def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely
     StateJson()['collapsed_steps']["actions"] = False
     StateJson().send_changes()
 
+
+def filtering_finished(future):
+    if future.exception():
+        logger.warn(repr(future.exception()))
+    else:
+        print("filtering finished")
+    
+
+@g.app.post('/apply_filters/')
+def apply_filters_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    my_future = g.loop.run_in_executor(g.executor, apply_filters_long, state)
+    task = asyncio.ensure_future(my_future, loop=g.loop)
+    task.add_done_callback(filtering_finished)
+    
 
 @g.app.post('/add_filter/')
 def add_filter_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
