@@ -117,6 +117,7 @@
           class="radio"
           v-model="state.dstDatasetMode"
           label="existingDataset"
+          v-if="false"
           :disabled="state.dstProjectMode === 'newProject' || state.action_process || true"
         >
           Add to existing dataset
