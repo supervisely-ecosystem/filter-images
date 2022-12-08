@@ -46,6 +46,13 @@
         </el-radio>
       </div>
     </sly-field>
+
+    <sly-field title="Batch size" description="Define how many images to process per batch. Min value is 50. Max value is 20000">
+      <div class="fflex">
+        <el-input-number v-model="state.batchSize" :min="50" :max="20000"></el-input-number>
+      </div>
+    </sly-field>
+
     <sly-field title="Result project" description="Define destination project">
       <div class="fflex">
         <el-radio
