@@ -37,12 +37,24 @@ def build_queries_from_filters(state):
     return queries
 
 
-def get_images(queries):
+def get_images(queries, with_limit=True):
     images_list = []
-    for query in queries:
-        ds_images = g.api.image.get_filtered_list(query["datasetId"], query["filters"], force_metadata_for_links=False)
+    all_ds_filtered_items_len = 0
+    for ds_query in queries:
+        ds_limit = g.TABLE_IMAGES_LIMIT - all_ds_filtered_items_len
+        if ds_limit < 0:
+            ds_limit = 0
+        ds_images, first_response = g.api.image.get_filtered_list(
+            ds_query["datasetId"], 
+            ds_query["filters"], 
+            force_metadata_for_links=False,
+            limit=ds_limit if with_limit else None, 
+            return_first_response=True,
+        )
+        all_ds_filtered_items_len += first_response["total"]
         images_list.extend(ds_images)
-
+    DataJson()["images_list_len"] = all_ds_filtered_items_len
+    DataJson().send_changes()
     return images_list
 
 

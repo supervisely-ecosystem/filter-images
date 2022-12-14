@@ -80,5 +80,8 @@ def reselect_project_button_clicked(state: supervisely.app.StateJson = Depends(s
     card_widgets.project_selector.disabled = False
 
     StateJson()['current_step'] = DataJson()["steps"]["input_project"]
-
+    StateJson()['selected_filters'] = []
+    StateJson()['current_preset'] = DataJson()['available_presets'][0]['name']  # All images
     StateJson().send_changes()
+    DataJson()["images_list_len"] = 0
+    DataJson().send_changes()
