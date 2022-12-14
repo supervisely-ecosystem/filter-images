@@ -32,7 +32,7 @@ def apply_filters_long(state: supervisely.app.StateJson):
         return
     else:
         StateJson()["empty_list"] = False
-    if len(g.images_list) > g.TABLE_IMAGES_LIMIT:
+    if DataJson()['images_list_len'] > g.TABLE_IMAGES_LIMIT:
         table_images = g.images_list[:g.TABLE_IMAGES_LIMIT]
         StateJson()['show_images_limit_warn'] = True
     else:
