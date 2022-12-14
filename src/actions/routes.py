@@ -5,6 +5,7 @@ import supervisely
 import src.actions.widgets as card_widgets
 import src.actions.functions as card_functions
 import src.input_project.widgets as input_project_widgets
+import src.filtering.functions as filtering_functions
 
 from supervisely.app import DataJson, StateJson
 
@@ -19,6 +20,8 @@ import asyncio
 def apply_action_long(state: supervisely.app.StateJson):
     StateJson()["action_process"] = True
     StateJson().send_changes()
+    queries = filtering_functions.build_queries_from_filters(state)
+    g.images_list = filtering_functions.get_images(queries, with_limit=False)
     try:
         res_project_info, res_dataset_msg = card_functions.apply_action(state)
         StateJson()["action_process"] = False
@@ -120,6 +123,7 @@ def dst_project_selected(
     StateJson()["show_images_limit_warn"] = False
     input_project_widgets.project_selector.update_data()
     StateJson().send_changes()
+    DataJson()["images_list_len"] = 0
     DataJson().send_changes()
 
 

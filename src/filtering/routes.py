@@ -37,7 +37,6 @@ def apply_filters_long(state: supervisely.app.StateJson):
         StateJson()['show_images_limit_warn'] = True
     else:
         table_images = g.images_list
-    DataJson()["images_list_len"] = len(g.images_list)
     table_functions.fill_table(table_images)
     first_row = table_widgets.images_table.get_json_data()['table_data']['data'][0]
     id_col_index = table_widgets.images_table.get_json_data()['table_data']['columns'].index('id')
@@ -127,6 +126,8 @@ def reselect_filters_button_clicked(state: supervisely.app.StateJson = Depends(s
     StateJson()['current_step'] = DataJson()["steps"]["filtering"]
 
     StateJson().send_changes()
+    DataJson()["images_list_len"] = 0
+    DataJson().send_changes()
 
 @g.app.post('/select_tag/')
 def selected_filter_changed(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
