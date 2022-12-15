@@ -29,6 +29,7 @@ def copy_images(ds_id):
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
+                skip_validation=True,
             )
 
 
@@ -59,6 +60,7 @@ def move_images(ds_id):
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
+                skip_validation=True,
             )
 
 

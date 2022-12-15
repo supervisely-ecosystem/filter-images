@@ -10,8 +10,8 @@
     "project management"
   ],
   "description": "Filters images and provides results in selected format",
-  "docker_image": "supervisely/base-py-sdk:6.68.52",
-  "instance_version": "6.5.53",
+  "docker_image": "supervisely/base-py-sdk:6.68.53",
+  "instance_version": "6.6.8",
   "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",
   "port": 8000,
   "task_location": "workspace_tasks",
