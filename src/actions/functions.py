@@ -30,6 +30,7 @@ def copy_images(ds_id):
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
                 skip_validation=True,
+                save_source_date=False,
             )
 
 
@@ -61,6 +62,7 @@ def move_images(ds_id):
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
                 skip_validation=True,
+                save_source_date=False,
             )
 
 
