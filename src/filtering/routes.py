@@ -115,8 +115,6 @@ def input_limit_changed(
 ):
     g.images_limit = state["images_limit"]
 
-    print(g.images_limit)
-
 
 @g.app.post("/select_filter/")
 def selected_filter_changed(
