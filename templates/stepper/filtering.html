@@ -21,6 +21,18 @@
                 </el-option>
             </el-select>
         </div>
+        <div id="images-limit" class="mt10">
+            Images limit:&nbsp;
+            <el-input-number
+                    v-model="state.images_limit"
+                    :min="0"
+                    :disabled="state.current_step > data.steps.filtering"
+                    @change="post('/set_images_limit/');"
+                    >
+            </el-input-number>
+        </div>
+        </div>
+
         <div class="filter-line" v-for="(filter, idx) in state.selected_filters">
             <div class="filter-text">
                 Filter:
