@@ -59,7 +59,7 @@ DataJson()["available_filters"] = [
         "data": {"from": 1, "to": 9999, "classId": None},
     },
     {
-        "name": "Objects without class",
+        "name": "Images without class",
         "type": "objects_class",
         "data": {"from": 0, "to": 0, "classId": None},
     },
@@ -99,10 +99,10 @@ DataJson()["available_presets"] = [
         ],
     },
     {
-        "name": "Objects without class",
+        "name": "Images without class",
         "filters": [
             {
-                "name": "Objects without class",
+                "name": "Images without class",
                 "type": "objects_class",
                 "data": {"from": 0, "to": 0, "classId": None},
             }
