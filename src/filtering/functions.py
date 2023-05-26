@@ -57,10 +57,14 @@ def get_images(queries, with_limit=True):
             ds_query["datasetId"],
             ds_query["filters"],
             force_metadata_for_links=False,
-            limit=ds_limit if with_limit else None,
+            limit=ds_limit if with_limit or g.images_limit > 0 else None,
             return_first_response=True,
         )
-        all_ds_filtered_items_len += first_response["total"]
+        if g.images_limit > 0:
+            all_ds_filtered_items_len += len(ds_images)
+        else:
+            all_ds_filtered_items_len += first_response["total"]
+
         images_list.extend(ds_images)
     DataJson()["images_list_len"] = all_ds_filtered_items_len
     DataJson().send_changes()
