@@ -36,6 +36,7 @@ def apply_filters_long(state: supervisely.app.StateJson):
         table_images = g.images_list[: g.TABLE_IMAGES_LIMIT]
         StateJson()["show_images_limit_warn"] = True
     else:
+        StateJson()["show_images_limit_warn"] = False
         table_images = g.images_list
     table_functions.fill_table(table_images)
     first_row = table_widgets.images_table.get_json_data()["table_data"]["data"][0]

@@ -20,7 +20,9 @@ def group_images_by_datasets_with_new_names():
 def copy_images(ds_id):
     images = group_images_by_datasets_with_new_names()
     images_len = len(g.images_list)
-    with card_widgets.action_progress(message="Copying images...", total=images_len) as pbar:
+    with card_widgets.action_progress(
+        message="Copying images...", total=images_len
+    ) as pbar:
         for src_ds_id, images_per_ds in images.items():
             g.api.image.copy_batch_optimized(
                 src_ds_id,
@@ -48,11 +50,14 @@ def copy_images(ds_id):
 #         for src_ds_id, images_per_ds in images.items():
 #             g.api.image.copy_batch(ds_id, images_per_ds, change_name_if_conflict=True, with_annotations=True, progress_cb=pbar.update)
 
+
 # @sly.timeit
 def move_images(ds_id):
     images = group_images_by_datasets_with_new_names()
     images_len = len(g.images_list)
-    with card_widgets.action_progress(message="Moving images...", total=images_len) as pbar:
+    with card_widgets.action_progress(
+        message="Moving images...", total=images_len
+    ) as pbar:
         for src_ds_id, images_per_ds in images.items():
             g.api.image.move_batch_optimized(
                 src_ds_id,
@@ -87,10 +92,16 @@ def delete_images():
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
-    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
-    with card_widgets.action_progress(message="Deleting images...", total=image_ids_len) as pbar:
+    image_ids_len = sum(
+        [len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()]
+    )
+    with card_widgets.action_progress(
+        message="Deleting images...", total=image_ids_len
+    ) as pbar:
         for image_ids_per_ds in image_ids.values():
-            g.api.image.remove_batch(image_ids_per_ds, progress_cb=pbar.update, batch_size=500)
+            g.api.image.remove_batch(
+                image_ids_per_ds, progress_cb=pbar.update, batch_size=500
+            )
 
 
 def assign_tag(state):
@@ -115,7 +126,9 @@ def assign_tag(state):
             applicable_to=state["tag_to_assign_applicable_to"],
         )
         g.project["project_meta"] = g.project["project_meta"].add_tag_meta(new_tag_meta)
-        g.api.project.update_meta(g.project["project_id"], g.project["project_meta"].to_json())
+        g.api.project.update_meta(
+            g.project["project_id"], g.project["project_meta"].to_json()
+        )
 
         project_meta_json = g.api.project.get_meta(g.project["project_id"])
         g.project["project_meta"] = sly.ProjectMeta.from_json(project_meta_json)
@@ -131,12 +144,16 @@ def assign_tag(state):
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
-    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    image_ids_len = sum(
+        [len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()]
+    )
     with card_widgets.action_progress(
         message="Assigning tag to images...", total=image_ids_len
     ) as pbar:
         for image_ids_per_ds in image_ids.values():
-            g.api.image.add_tag_batch(image_ids_per_ds, tag_id, tag_value, progress_cb=pbar.update)
+            g.api.image.add_tag_batch(
+                image_ids_per_ds, tag_id, tag_value, progress_cb=pbar.update
+            )
 
 
 def remove_tags():
@@ -145,7 +162,9 @@ def remove_tags():
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
-    image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    image_ids_len = sum(
+        [len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()]
+    )
     project_meta_tags = g.project["project_meta"].tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
     with card_widgets.action_progress(
@@ -196,19 +215,33 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
         new_readme_text += "<div><b>Source project name:</b> the same.</div>\n"
         new_readme_text += "<div><b>Source project ID:</b> the same.</div>\n"
     else:
-        new_readme_text += f'<div><b>Source project name:</b> {g.project["name"]}</div>\n'
-        new_readme_text += f'<div><b>Source project ID:</b> {g.project["project_id"]}</div>\n'
+        new_readme_text += (
+            f'<div><b>Source project name:</b> {g.project["name"]}</div>\n'
+        )
+        new_readme_text += (
+            f'<div><b>Source project ID:</b> {g.project["project_id"]}</div>\n'
+        )
 
-    new_readme_text += f'<div><b>Source dataset names:</b> {g.project["dataset_names"]}</div>\n'
-    new_readme_text += f'<div><b>Source dataset IDs:</b> {g.project["dataset_ids"]}</div>\n'
+    new_readme_text += (
+        f'<div><b>Source dataset names:</b> {g.project["dataset_names"]}</div>\n'
+    )
+    new_readme_text += (
+        f'<div><b>Source dataset IDs:</b> {g.project["dataset_ids"]}</div>\n'
+    )
 
     if action != "Copy / Move":
         new_readme_text += f"<div><b>Applied action:</b> {action.lower()}</div>\n"
     else:
-        new_readme_text += f'<div><b>Applied action:</b> {state["move_or_copy"].lower()}</div>\n'
+        new_readme_text += (
+            f'<div><b>Applied action:</b> {state["move_or_copy"].lower()}</div>\n'
+        )
     if dataset_info is not None:
-        new_readme_text += f"<div><b>Destination dataset name:</b> {dataset_info.name}</div>\n"
-        new_readme_text += f"<div><b>Destination dataset ID:</b> {dataset_info.id}</div>\n"
+        new_readme_text += (
+            f"<div><b>Destination dataset name:</b> {dataset_info.name}</div>\n"
+        )
+        new_readme_text += (
+            f"<div><b>Destination dataset ID:</b> {dataset_info.id}</div>\n"
+        )
     else:
         new_readme_text += f"<div><b>Destination datasets:</b> Unknown</div>\n"
 
@@ -217,7 +250,9 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
         new_readme_text += f"<div><b>Name:</b> All images</div>\n"
     else:
         for filter_idx, filter in enumerate(state["selected_filters"]):
-            new_readme_text += f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
+            new_readme_text += (
+                f'<div><b>{filter_idx + 1}. Name:</b> {filter["name"]}</div>\n'
+            )
             new_readme_text += f'<div><b>Filter type:</b> {filter["type"]}</div>\n'
             data = data_to_readable_format(filter["data"])
             new_readme_text += data
@@ -258,7 +293,9 @@ def apply_action(state):
             )
             res_dataset_msg = f"Dataset: {dataset_info.name}"
         elif state["dstDatasetMode"] == "existingDataset":
-            dataset_info = g.api.dataset.get_info_by_name(project_id, state["selectedDatasetName"])
+            dataset_info = g.api.dataset.get_info_by_name(
+                project_id, state["selectedDatasetName"]
+            )
             res_dataset_msg = f"Dataset: {dataset_info.name}"
         ds_id = dataset_info.id
 
