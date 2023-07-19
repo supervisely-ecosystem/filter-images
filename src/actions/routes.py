@@ -104,6 +104,8 @@ def dst_project_selected(
 def dst_project_selected(
     state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
 ):
+    StateJson()["app_stopped"] = True
+    StateJson().send_changes()
     f.shutdown_app()
 
 
@@ -151,7 +153,9 @@ def tag_to_assign_selected(
         StateJson()["tag_to_assign_value"] = 0
     elif state["tag_to_assign_value_type"] == str(supervisely.TagValueType.ANY_STRING):
         StateJson()["tag_to_assign_value"] = ""
-    elif state["tag_to_assign_value_type"] == str(supervisely.TagValueType.ONEOF_STRING):
+    elif state["tag_to_assign_value_type"] == str(
+        supervisely.TagValueType.ONEOF_STRING
+    ):
         # TODO: bug when new tag (currently not implemented)
         StateJson()["tag_to_assign_values"] = tag_data["values"]
         StateJson()["tag_to_assign_value"] = state["tag_to_assign_values"][0]
