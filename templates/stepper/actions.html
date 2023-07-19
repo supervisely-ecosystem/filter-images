@@ -317,32 +317,47 @@
   <div
     v-if="state.action_finished && !state.action_process && state.current_step == data.steps.actions"
   >
-    <sly-field title="Output Project" description="" style="margin-bottom: 0">
-      <sly-field title="" :description="data.dstDatasetMsg">
-        <a
-          slot="title"
-          target="_blank"
-          :href="`/projects/${data.dstProjectId}/datasets`"
-          >{{ data.dstProjectName }}</a
-        >
-        <sly-icon
-          slot="icon"
-          :options="{ imageUrl: `${data.dstProjectPreviewUrl}` }"
-        />
+    <div>
+      <sly-field title="Output Project" description="" style="margin-bottom: 0">
+        <sly-field title="" :description="data.dstDatasetMsg">
+          <a
+            slot="title"
+            target="_blank"
+            :href="`/projects/${data.dstProjectId}/datasets`"
+            >{{ data.dstProjectName }}</a
+          >
+          <sly-icon
+            slot="icon"
+            :options="{ imageUrl: `${data.dstProjectPreviewUrl}` }"
+          />
+        </sly-field>
       </sly-field>
-    </sly-field>
-    <el-button
-      v-if="state.action_finished"
-      type="success"
-      @click="post('/new_action/');"
-    >
-      <i class="zmdi zmdi-refresh"></i>
-      SELECT NEXT ACTION
-    </el-button>
-    <el-button type="danger" @click="post('/finish_app/');">
-      <i class="zmdi zmdi-power"></i>
-      FINISH APP
-    </el-button>
+      <el-button
+        v-if="state.action_finished"
+        type="success"
+        @click="post('/new_action/');"
+        :disabled="state.app_stopped"
+      >
+        <i class="zmdi zmdi-refresh"></i>
+        SELECT NEXT ACTION
+      </el-button>
+      <el-button
+        type="danger"
+        @click="post('/finish_app/');"
+        :disabled="state.app_stopped"
+      >
+        <i class="zmdi zmdi-power"></i>
+        FINISH APP
+      </el-button>
+    </div>
+    <div style="margin-top: 10px">
+      <el-alert
+        v-if="state.app_stopped"
+        title="The app was successfully stopped"
+        type="info"
+      >
+      </el-alert>
+    </div>
   </div>
   <div v-else>
     <div
