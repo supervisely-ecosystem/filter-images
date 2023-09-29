@@ -280,7 +280,7 @@ def apply_action(state):
     if action == "Copy / Move":
         project_id = None
         ds_ids = None
-        g.SAVE_PROJECT_STRUCTUR = False
+        g.SAVE_PROJECT_STRUCTURE = False
 
         if state["dstProjectMode"] == "newProject":
             project_name = state["dstProjectName"]
