@@ -35,9 +35,14 @@ def copy_images(ds_ids):
                 skip_validation=True,
                 save_source_date=False,
             )
+    not_empty_datasets = []
     for ds_id in ds_ids:
-        if g.api.dataset.get_info_by_id(ds_id).images_count == 0:
+        dataset = g.api.dataset.get_info_by_id(ds_id)
+        if dataset.images_count == 0:
             g.api.dataset.remove(ds_id)
+        else:
+            not_empty_datasets.append(dataset)
+    return not_empty_datasets
 
 
 # Old implementation for speed measurement
@@ -74,9 +79,14 @@ def move_images(ds_ids):
                 skip_validation=True,
                 save_source_date=False,
             )
+    not_empty_datasets = []
     for ds_id in ds_ids:
-        if g.api.dataset.get_info_by_id(ds_id).images_count == 0:
+        dataset = g.api.dataset.get_info_by_id(ds_id)
+        if dataset.images_count == 0:
             g.api.dataset.remove(ds_id)
+        else:
+            not_empty_datasets.append(dataset)
+    return not_empty_datasets
 
 # Old implementation for speed measurement
 #
@@ -316,9 +326,9 @@ def apply_action(state):
         ds_ids = [ds_info.id for ds_info in dataset_infos]
 
         if state["move_or_copy"] == "copy":
-            copy_images(ds_ids)
+            dataset_infos = copy_images(ds_ids)
         elif state["move_or_copy"] == "move":
-            move_images(ds_ids)
+            dataset_infos = move_images(ds_ids)
 
     elif action == "Delete":
         delete_images()
