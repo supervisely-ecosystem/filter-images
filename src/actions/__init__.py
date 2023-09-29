@@ -18,7 +18,7 @@ StateJson()['action_finished'] = False
 StateJson()['apply_text'] = 'APPLY'
 
 StateJson()['dstProjectMode'] = 'newProject' # ['newProject', 'existingProject']
-StateJson()['dstDatasetMode'] = 'newDataset' # ['newDataset', 'existingDataset']
+StateJson()['dstDatasetMode'] = 'newDataset' # ['newDataset', 'similarDatasets', 'existingDataset']
 StateJson()['move_or_copy'] = 'copy'
 StateJson()['dstDatasetName'] = ''
 StateJson()['dstProjectName'] = ''
