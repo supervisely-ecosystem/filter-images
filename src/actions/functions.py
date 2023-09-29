@@ -35,6 +35,9 @@ def copy_images(ds_ids):
                 skip_validation=True,
                 save_source_date=False,
             )
+    for ds_id in ds_ids:
+        if g.api.dataset.get_info_by_id(ds_id).images_count == 0:
+            g.api.dataset.remove(ds_id)
 
 
 # Old implementation for speed measurement
@@ -71,7 +74,9 @@ def move_images(ds_ids):
                 skip_validation=True,
                 save_source_date=False,
             )
-
+    for ds_id in ds_ids:
+        if g.api.dataset.get_info_by_id(ds_id).images_count == 0:
+            g.api.dataset.remove(ds_id)
 
 # Old implementation for speed measurement
 #
