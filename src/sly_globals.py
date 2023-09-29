@@ -19,8 +19,9 @@ app_cache_dir = os.path.join(app_data_dir, "cache")
 # TODO: debug
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(app_root_directory, "debug.env"))
-load_dotenv(os.path.expanduser("~/supervisely.env"))
+if sly.is_development():
+    load_dotenv(os.path.join(app_root_directory, "local.env"))
+    load_dotenv(os.path.expanduser("~/supervisely.env"))
 
 api = sly.Api.from_env()
 file_cache = sly.FileCache(name="FileCache", storage_root=app_cache_dir)
@@ -35,6 +36,8 @@ PROJECT_ID = (
     if os.getenv("modal.state.slyProjectId").isnumeric()
     else None
 )
+DEFAULT_PROJECT_NAME = "New filtered project"
+SAVE_PROJECT_STRUCTURE = False
 
 app.mount("/sly", sly_app)
 app.mount(
