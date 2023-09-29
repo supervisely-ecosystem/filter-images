@@ -285,7 +285,7 @@ def apply_action(state):
         if state["dstProjectMode"] == "newProject":
             project_name = state["dstProjectName"]
             if project_name == "":
-                sly.logger.warn(f"Project name is not specified. Using default: {g.DEFAULT_PROJECT_NAME}")
+                sly.logger.info(f"Project name is not specified. Using default name.")
                 project_name = g.DEFAULT_PROJECT_NAME
             project_info = g.api.project.create(
                 g.project["workspace_id"],
@@ -293,6 +293,7 @@ def apply_action(state):
                 type=sly.ProjectType.IMAGES,
                 change_name_if_conflict=True,
             )
+            sly.logger.info(f"Project {project_info.name} has been created.")
             project_id = project_info.id
             res_project_info = project_info
         elif state["dstProjectMode"] == "existingProject":
