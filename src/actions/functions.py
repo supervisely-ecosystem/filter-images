@@ -17,17 +17,18 @@ def group_images_by_datasets_with_new_names():
 
 
 # @sly.timeit
-def copy_images(ds_id):
+def copy_images(ds_ids):
     images = group_images_by_datasets_with_new_names()
+    ds_mapping = None
+    if g.SAVE_PROJECT_STRUCTURE:
+        ds_mapping = {src_ds_id: ds_id for src_ds_id, ds_id in zip(images.keys(), ds_ids)}
     images_len = len(g.images_list)
-    with card_widgets.action_progress(
-        message="Copying images...", total=images_len
-    ) as pbar:
+    with card_widgets.action_progress(message="Copying images...", total=images_len) as pbar:
         for src_ds_id, images_per_ds in images.items():
             g.api.image.copy_batch_optimized(
                 src_ds_id,
                 images_per_ds["images"],
-                ds_id,
+                ds_mapping[src_ds_id] if g.SAVE_PROJECT_STRUCTURE else ds_ids[0],
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
@@ -52,17 +53,18 @@ def copy_images(ds_id):
 
 
 # @sly.timeit
-def move_images(ds_id):
+def move_images(ds_ids):
     images = group_images_by_datasets_with_new_names()
+    ds_mapping = None
+    if g.SAVE_PROJECT_STRUCTURE:
+        ds_mapping = {src_ds_id: ds_id for src_ds_id, ds_id in zip(images.keys(), ds_ids)}
     images_len = len(g.images_list)
-    with card_widgets.action_progress(
-        message="Moving images...", total=images_len
-    ) as pbar:
+    with card_widgets.action_progress(message="Moving images...", total=images_len) as pbar:
         for src_ds_id, images_per_ds in images.items():
             g.api.image.move_batch_optimized(
                 src_ds_id,
                 images_per_ds["images"],
-                ds_id,
+                ds_mapping[src_ds_id] if g.SAVE_PROJECT_STRUCTURE else ds_ids[0],
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
@@ -208,7 +210,7 @@ def data_to_readable_format(data):
     return data_to_display
 
 
-def add_metadata_to_project_readme(res_project_info, dataset_info, action, state):
+def add_metadata_to_project_readme(res_project_info, dataset_infos, action, state):
     current_readme = res_project_info.readme
     new_readme_text = "### Project changed by Filter Images app:\n"
     if res_project_info.id == g.project["project_id"]:
@@ -232,16 +234,10 @@ def add_metadata_to_project_readme(res_project_info, dataset_info, action, state
     if action != "Copy / Move":
         new_readme_text += f"<div><b>Applied action:</b> {action.lower()}</div>\n"
     else:
-        new_readme_text += (
-            f'<div><b>Applied action:</b> {state["move_or_copy"].lower()}</div>\n'
-        )
-    if dataset_info is not None:
-        new_readme_text += (
-            f"<div><b>Destination dataset name:</b> {dataset_info.name}</div>\n"
-        )
-        new_readme_text += (
-            f"<div><b>Destination dataset ID:</b> {dataset_info.id}</div>\n"
-        )
+        new_readme_text += f'<div><b>Applied action:</b> {state["move_or_copy"].lower()}</div>\n'
+    if dataset_infos is not None:
+        new_readme_text += f"<div><b>Destination datasets names:</b> {[ds.name for ds in dataset_infos]}</div>\n"
+        new_readme_text += f"<div><b>Destination datasets IDs:</b> {[ds.id for ds in dataset_infos]}</div>\n"
     else:
         new_readme_text += f"<div><b>Destination datasets:</b> Unknown</div>\n"
 
@@ -268,14 +264,17 @@ def apply_action(state):
     res_dataset_msg = ""
     if action == "Copy / Move":
         project_id = None
-        ds_id = None
+        ds_ids = None
+        g.SAVE_PROJECT_STRUCTUR = False
 
         if state["dstProjectMode"] == "newProject":
-            if state["dstProjectName"] == "":
-                raise ValueError("Project name can't be empty!")
+            project_name = state["dstProjectName"]
+            if project_name == "":
+                sly.logger.warn(f"Project name can't be empty. Using default name: {g.DEFAULT_PROJECT_NAME}")
+                project_name = g.DEFAULT_PROJECT_NAME
             project_info = g.api.project.create(
                 g.project["workspace_id"],
-                state["dstProjectName"],
+                project_name,
                 type=sly.ProjectType.IMAGES,
                 change_name_if_conflict=True,
             )
@@ -288,21 +287,33 @@ def apply_action(state):
         if state["dstDatasetMode"] == "newDataset":
             if state["dstDatasetName"] == "":
                 raise ValueError("Dataset name can't be empty!")
-            dataset_info = g.api.dataset.create(
-                project_id, state["dstDatasetName"], change_name_if_conflict=True
-            )
-            res_dataset_msg = f"Dataset: {dataset_info.name}"
+            dataset_infos = [
+                g.api.dataset.create(
+                    project_id, state["dstDatasetName"], change_name_if_conflict=True
+                )
+            ]
+            res_dataset_msg = f"Dataset: {dataset_infos[0].name}"
+        elif state["dstDatasetMode"] == "similarDatasets":
+            g.SAVE_PROJECT_STRUCTURE = True
+            existing_dataset_infos = g.api.dataset.get_list(g.PROJECT_ID)
+            existing_dataset_names = [dataset_info.name for dataset_info in existing_dataset_infos]
+            dataset_infos = []
+            for name in existing_dataset_names:
+                new_ds = g.api.dataset.create(project_id, name, change_name_if_conflict=True)
+                dataset_infos.append(new_ds)
+            res_dataset_msg = f"Datasets: {[ds_info.name for ds_info in dataset_infos]}"
+
         elif state["dstDatasetMode"] == "existingDataset":
-            dataset_info = g.api.dataset.get_info_by_name(
-                project_id, state["selectedDatasetName"]
-            )
-            res_dataset_msg = f"Dataset: {dataset_info.name}"
-        ds_id = dataset_info.id
+            dataset_infos = [
+                g.api.dataset.get_info_by_name(project_id, state["selectedDatasetName"])
+            ]
+            res_dataset_msg = f"Dataset: {dataset_infos[0].name}"
+        ds_ids = [ds_info.id for ds_info in dataset_infos]
 
         if state["move_or_copy"] == "copy":
-            copy_images(ds_id)
+            copy_images(ds_ids)
         elif state["move_or_copy"] == "move":
-            move_images(ds_id)
+            move_images(ds_ids)
 
     elif action == "Delete":
         delete_images()
@@ -314,13 +325,13 @@ def apply_action(state):
         raise ValueError(f"Action is not supported to use: {action}")
 
     if action != "Copy / Move":
-        dataset_info = None
+        dataset_infos = None
         res_project_info = g.api.project.get_info_by_id(g.project["project_id"])
         if len(g.project["dataset_ids"]) == 1:
             res_dataset_msg = DataJson()["ds_names"]
         elif len(g.project["dataset_ids"]) > 1:
             res_dataset_msg = "Several datasets"
 
-    add_metadata_to_project_readme(res_project_info, dataset_info, action, state)
+    add_metadata_to_project_readme(res_project_info, dataset_infos, action, state)
 
     return res_project_info, res_dataset_msg
