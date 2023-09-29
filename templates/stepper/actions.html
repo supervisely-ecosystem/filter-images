@@ -104,21 +104,28 @@
     </sly-field>
     <sly-field
       title="Result dataset"
-      description="All filtered items will be placed to a single dataset."
+      description="Define destination dataset (or datasets)"
     >
       <div class="fflex">
         <el-radio
           class="radio"
           v-model="state.dstDatasetMode"
           label="newDataset"
-          >Create new dataset</el-radio
+          >Create new single dataset</el-radio
         >
         <el-radio
           class="radio"
           v-model="state.dstDatasetMode"
+          label="similarDatasets"
+          v-if="state.dstProjectMode === 'newProject'"
+        >
+          Save project structure (create similar datasets)
+        </el-radio>
+        <el-radio
+          class="radio"
+          v-model="state.dstDatasetMode"
           label="existingDataset"
-          v-if="false"
-          :disabled="state.dstProjectMode === 'newProject' || state.action_process || true"
+          v-if="state.dstProjectMode === 'existingProject'"
         >
           Add to existing dataset
         </el-radio>
