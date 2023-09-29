@@ -285,7 +285,7 @@ def apply_action(state):
         if state["dstProjectMode"] == "newProject":
             project_name = state["dstProjectName"]
             if project_name == "":
-                sly.logger.warn(f"Project name can't be empty. Using default name: {g.DEFAULT_PROJECT_NAME}")
+                sly.logger.warn(f"Project name is not specified. Using default: {g.DEFAULT_PROJECT_NAME}")
                 project_name = g.DEFAULT_PROJECT_NAME
             project_info = g.api.project.create(
                 g.project["workspace_id"],
