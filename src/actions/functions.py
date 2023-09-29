@@ -307,7 +307,6 @@ def apply_action(state):
                     project_id, state["dstDatasetName"], change_name_if_conflict=True
                 )
             ]
-            res_dataset_msg = f"Dataset: {dataset_infos[0].name}"
         elif state["dstDatasetMode"] == "similarDatasets":
             g.SAVE_PROJECT_STRUCTURE = True
             existing_dataset_infos = g.api.dataset.get_list(g.PROJECT_ID)
@@ -316,13 +315,11 @@ def apply_action(state):
             for name in existing_dataset_names:
                 new_ds = g.api.dataset.create(project_id, name, change_name_if_conflict=True)
                 dataset_infos.append(new_ds)
-            res_dataset_msg = f"Datasets: {[ds_info.name for ds_info in dataset_infos]}"
 
         elif state["dstDatasetMode"] == "existingDataset":
             dataset_infos = [
                 g.api.dataset.get_info_by_name(project_id, state["selectedDatasetName"])
             ]
-            res_dataset_msg = f"Dataset: {dataset_infos[0].name}"
         ds_ids = [ds_info.id for ds_info in dataset_infos]
 
         if state["move_or_copy"] == "copy":
@@ -339,7 +336,12 @@ def apply_action(state):
     else:
         raise ValueError(f"Action is not supported to use: {action}")
 
-    if action != "Copy / Move":
+    if action == "Copy / Move":
+        if len(dataset_infos) == 1:
+            res_dataset_msg = f"Dataset: {dataset_infos[0].name}"
+        else:
+            res_dataset_msg = f"Datasets: {[ds_info.name for ds_info in dataset_infos]}"
+    else:
         dataset_infos = None
         res_project_info = g.api.project.get_info_by_id(g.project["project_id"])
         if len(g.project["dataset_ids"]) == 1:
