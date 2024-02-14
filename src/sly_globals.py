@@ -28,14 +28,10 @@ file_cache = sly.FileCache(name="FileCache", storage_root=app_cache_dir)
 app = FastAPI()
 sly_app = create()
 
-TEAM_ID = int(os.getenv("context.teamId"))
-USER_ID = int(os.getenv("context.userId"))
-WORKSPACE_ID = int(os.getenv("context.workspaceId"))
-PROJECT_ID = (
-    int(os.getenv("modal.state.slyProjectId"))
-    if os.getenv("modal.state.slyProjectId").isnumeric()
-    else None
-)
+TEAM_ID = sly.env.team_id()
+USER_ID = sly.env.user_id()
+WORKSPACE_ID = sly.env.workspace_id()
+PROJECT_ID = sly.env.project_id()
 DEFAULT_PROJECT_NAME = "New filtered project"
 SAVE_PROJECT_STRUCTURE = False
 
