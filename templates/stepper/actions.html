@@ -316,6 +316,32 @@
       </div>
     </div>
   </div>
+  <div
+    v-else-if="state.selected_action === 'Remove specific tag (from images)'"
+  >
+    <el-select
+      style="width: 300px; margin: 5px 5px 10px 5px"
+      v-model="state.tag_to_remove"
+      :disabled="state.action_process"
+      @change="(val) => {
+                    state.tag_to_remove = val;
+                    post('/select_tag_to_remove/');
+                }"
+    >
+      <el-option
+        v-for="item in data.available_tags"
+        :label="item.name"
+        :key="item.name"
+        :value="item.id"
+        v-if="(item.name != 'Any tag')"
+      >
+        <span style="float: left">{{ item.name }}</span>
+        <span style="float: right; font-size: 12px"
+          >applicable to: {{ item.applicable_type }}</span
+        ></el-option
+      >
+    </el-select>
+  </div>
 
   <div v-if="state.action_process" style="margin-bottom: 10px">
     {{{ action_progress.to_html() }}}
@@ -377,6 +403,7 @@
       type="primary"
       @click="post('/apply_action/');"
       :loading="state.action_process"
+      :disabled="state.selected_action === 'Remove specific tag (from images)' && !state.tag_to_remove"
     >
       <i class="zmdi zmdi-fire"></i>
       {{ state.apply_text }}

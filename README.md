@@ -52,7 +52,8 @@ You can add as many filter as you need. Filters will be combined with logical AN
 - `Copy / Move`
 - `Delete`
 - `Assign tag`
-- `Remove all tags`
+- `Remove all tags (from images)`
+- `Remove specific tag (from images)`
 
 6. Be sure that you are correctly selected action and destination project / dataset (in `Copy / Move` action). If everything is ok, apply selected action.
 
