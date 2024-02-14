@@ -8,7 +8,8 @@ DataJson()['available_actions'] = [
     'Copy / Move',
     'Delete',
     'Assign tag',
-    'Remove all tags'
+    "Remove all tags (from images)",
+    "Remove specific tag (from images)",
 ]
 
 StateJson()['selected_action'] = 'Copy / Move'
@@ -61,3 +62,5 @@ StateJson()['tag_to_assign'] = None
 StateJson()['tag_to_assign_value_type'] = StateJson()['tag_value_types'][0]['value']
 StateJson()['tag_to_assign_value'] = None
 StateJson()['tag_to_assign_values'] = []
+StateJson()['tag_to_remove'] = None
+StateJson()['tag_to_remove_value_type'] = None
