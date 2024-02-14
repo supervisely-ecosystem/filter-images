@@ -173,7 +173,7 @@ def assign_tag(state):
             )
 
 
-def remove_tags():
+def remove_tags_from_images():
     image_ids = {}
     for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
@@ -185,13 +185,38 @@ def remove_tags():
     project_meta_tags = g.project["project_meta"].tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
     with card_widgets.action_progress(
-        message="Removing tags from images...", total=image_ids_len
+        message="Removing all tags from images...", total=image_ids_len
     ) as pbar:
         for image_ids_per_ds in image_ids.values():
             g.api.advanced.remove_tags_from_images(
                 project_meta_tags, image_ids_per_ds, progress_cb=pbar.update
             )
 
+
+def remove_specific_tag_from_images(state):
+    if state["tag_to_remove"] is None:
+        raise ValueError("Select tag to remove!")
+    tag_id = state["tag_to_remove"]
+    image_ids = {}
+    for image in g.images_list:
+        if image.dataset_id not in image_ids.keys():
+            image_ids[image.dataset_id] = []
+        image_ids[image.dataset_id].append(image.id)
+    image_ids_len = sum(
+        [len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()]
+    )
+    project_meta_tags = g.project["project_meta"].tag_metas
+    project_meta_tags = [tag.sly_id for tag in project_meta_tags]
+    if not tag_id in project_meta_tags:
+        raise ValueError("Tag is not found in project!")
+    with card_widgets.action_progress(
+        message="Removing specifiid tag from images...", total=image_ids_len
+    ) as pbar:
+        for image_ids_per_ds in image_ids.values():
+            g.api.advanced.remove_tags_from_images(
+                [tag_id], image_ids_per_ds, progress_cb=pbar.update
+            )
+    state["tag_to_remove"] = None
 
 def data_to_readable_format(data):
     data_to_display = "<div><b>Data:</b></div>\n"
@@ -332,8 +357,10 @@ def apply_action(state):
         delete_images()
     elif action == "Assign tag":
         assign_tag(state)
-    elif action == "Remove all tags":
-        remove_tags()
+    elif action == "Remove all tags (from images)":
+        remove_tags_from_images()
+    elif action == "Remove specific tag (from images)":
+        remove_specific_tag_from_images(state)
     else:
         raise ValueError(f"Action is not supported to use: {action}")
 

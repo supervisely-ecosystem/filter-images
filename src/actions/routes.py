@@ -93,8 +93,11 @@ def dst_project_selected(
     elif state["selected_action"] == "Assign tag":
         StateJson()["apply_text"] = f"ASSIGN TAG TO {num_images} IMAGES"
         card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
-    elif state["selected_action"] == "Remove all tags":
-        StateJson()["apply_text"] = f"REMOVE TAGS FROM {num_images} IMAGES"
+    elif state["selected_action"] == "Remove all tags (from images)":
+        StateJson()["apply_text"] = f"REMOVE ALL TAGS FROM {num_images} IMAGES"
+        card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
+    elif state["selected_action"] == "Remove specific tag (from images)":
+        StateJson()["apply_text"] = f"REMOVE SPECIFIED TAG FROM {num_images} IMAGES"
         card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     StateJson().send_changes()
     DataJson().send_changes()
@@ -114,6 +117,7 @@ def dst_project_selected(
     state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
 ):
     StateJson()["action_finished"] = False
+    StateJson()["tag_to_remove"] = None
     StateJson()["current_step"] = 1
     StateJson()["collapsed_steps"] = {
         "input_project": False,
@@ -161,4 +165,25 @@ def tag_to_assign_selected(
         StateJson()["tag_to_assign_value"] = state["tag_to_assign_values"][0]
     elif state["tag_to_assign_value_type"] == str(supervisely.TagValueType.NONE):
         StateJson()["tag_to_assign_value"] = None
+    StateJson().send_changes()
+
+
+@g.app.post("/select_tag_to_remove/")
+def tag_to_assign_selected(
+    state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
+):
+    if state["tag_to_remove"] is None:
+        return
+    new_tag_id = state["tag_to_remove"]
+    tag_data = None
+    for tag in DataJson()["available_tags"]:
+        if tag["id"] == new_tag_id:
+            tag_data = tag
+            break
+
+    if tag_data is None:
+        supervisely.logger.warn(f"Not found tag with id: {new_tag_id}")
+        return
+
+    StateJson()["tag_to_remove_value_type"] = tag_data["value_type"]
     StateJson().send_changes()
