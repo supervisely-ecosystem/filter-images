@@ -72,6 +72,8 @@ def get_images(queries, with_limit=True):
 
 
 def get_available_classes_and_tags(project_meta):
+    DataJson()["available_tags"] = []
+    DataJson()["available_classes"] = []
     for class_obj in project_meta["classes"]:
         DataJson()["available_classes"].append(
             {"name": class_obj["title"], "id": class_obj["id"]}
