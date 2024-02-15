@@ -11,12 +11,13 @@ from supervisely.app.widgets.classic_table.classic_table import ClassicTable
 def images_table_cell_clicked(state: StateJson = Depends(StateJson.from_request)):
     if state['loading_preview']:
         return
-    StateJson()['loading_preview'] = True
-    StateJson().send_changes()
     selected_cell = card_widgets.images_table.get_selected_cell(state)
     if selected_cell is None:
         return
-    
+    if selected_cell['row_data'] is None:
+        return 
+    StateJson()['loading_preview'] = True
+    StateJson().send_changes()
     card_functions.show_preview(selected_cell['row_data']['id'])
     StateJson()['loading_preview'] = False
     DataJson().send_changes()
