@@ -317,7 +317,7 @@
     </div>
   </div>
   <div
-    v-else-if="state.selected_action === 'Remove specific tag (from images)'"
+    v-else-if="state.selected_action === 'Remove specific tag (from images)' || state.selected_action === 'Remove specific tag (from objects)'"
   >
     <el-select
       style="width: 300px; margin: 5px 5px 10px 5px"
@@ -403,7 +403,7 @@
       type="primary"
       @click="post('/apply_action/');"
       :loading="state.action_process"
-      :disabled="state.selected_action === 'Remove specific tag (from images)' && !state.tag_to_remove"
+      :disabled="(state.selected_action === 'Remove specific tag (from images)' || state.selected_action === 'Remove specific tag (from objects)') && !state.tag_to_remove"
     >
       <i class="zmdi zmdi-fire"></i>
       {{ state.apply_text }}
