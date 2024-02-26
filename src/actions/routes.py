@@ -99,6 +99,9 @@ def dst_project_selected(
     elif state["selected_action"] == "Remove specific tag (from images)":
         StateJson()["apply_text"] = f"REMOVE SPECIFIED TAG FROM {num_images} IMAGES"
         card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
+    elif state["selected_action"] == "Remove specific tag (from objects)":
+        StateJson()["apply_text"] = f"REMOVE SPECIFIED TAG FROM OBJECTS on {num_images} IMAGES"
+        card_widgets.warning_before_action.description = "Your source project data WILL BE CHANGED. Apply this action only if you're sure what you do."
     StateJson().send_changes()
     DataJson().send_changes()
 

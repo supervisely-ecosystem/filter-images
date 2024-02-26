@@ -10,6 +10,7 @@ DataJson()["available_actions"] = [
     "Assign tag",
     "Remove all tags (from images)",
     "Remove specific tag (from images)",
+    "Remove specific tag (from objects)",
 ]
 
 StateJson()["selected_action"] = "Copy / Move"
