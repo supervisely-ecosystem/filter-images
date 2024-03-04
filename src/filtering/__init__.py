@@ -56,22 +56,12 @@ DataJson()["available_filters"] = [
     {
         "name": "Objects of class",
         "type": "objects_class",
-        "data": {
-            "from": 1,
-            "to": 9999,
-            "classId": None,
-            "include": True,
-        },
+        "data": {"from": 1, "to": 9999, "classId": None},
     },
     {
         "name": "Without objects of class",
         "type": "objects_class",
-        "data": {
-            "from": 1,
-            "to": 9999,
-            "classId": None,
-            "include": False,
-        },
+        "data": {"from": 0, "to": 0, "classId": None},
     },
     {
         "name": "Objects by annotator",
@@ -102,14 +92,9 @@ DataJson()["available_presets"] = [
         "name": "Without any objects",
         "filters": [
             {
-                "name": "Without any objects",
-                "type": None,
-                "data": {
-                    "from": 0,
-                    "to": 0,
-                    "classId": None,
-                    "include": True,
-                },
+                "name": "Objects of class",
+                "type": "objects_class",
+                "data": {"from": 0, "to": 0, "classId": None},
             }
         ],
     },
@@ -119,12 +104,7 @@ DataJson()["available_presets"] = [
             {
                 "name": "Without objects of class",
                 "type": "objects_class",
-                "data": {
-                    "from": 1,
-                    "to": 9999,
-                    "classId": None,
-                    "include": False,
-                },
+                "data": {"from": 0, "to": 0, "classId": None},
             }
         ],
     },
