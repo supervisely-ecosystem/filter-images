@@ -10,7 +10,11 @@ def build_queries_from_filters(state):
     queries = []
     datasets = g.project["dataset_ids"]
     filters = []
+    without_any_objects = False
     for filter in state["selected_filters"]:
+        if filter["name"] == "Without any objects":
+            without_any_objects = True
+            continue
         filter_data = {}
         filter_data["type"] = filter["type"]
         filter_data["data"] = copy.deepcopy(filter["data"])
@@ -18,28 +22,26 @@ def build_queries_from_filters(state):
             raise ValueError("Filename can't be empty!")
         elif filter["type"] == "objects_annotator" and filter["data"]["userId"] is None:
             filter_data["data"] = {}
-        elif (
-            filter["type"] == "tagged_by_annotator" and filter["data"]["userId"] is None
-        ):
+        elif filter["type"] == "tagged_by_annotator" and filter["data"]["userId"] is None:
             filter_data["data"] = {}
         if "valueType" in filter_data["data"].keys():
-            if filter_data["data"]["valueType"] == str(
-                supervisely.TagValueType.ANY_NUMBER
-            ):
-                filter_data["data"]["value"]["from"] = str(
-                    filter_data["data"]["value"]["from"]
-                )
-                filter_data["data"]["value"]["to"] = str(
-                    filter_data["data"]["value"]["to"]
-                )
-            elif filter_data["data"]["valueType"] == str(
-                supervisely.TagValueType.ANY_STRING
-            ):
+            if filter_data["data"]["valueType"] == str(supervisely.TagValueType.ANY_NUMBER):
+                filter_data["data"]["value"]["from"] = str(filter_data["data"]["value"]["from"])
+                filter_data["data"]["value"]["to"] = str(filter_data["data"]["value"]["to"])
+            elif filter_data["data"]["valueType"] == str(supervisely.TagValueType.ANY_STRING):
                 assert filter_data["data"]["value"] != "", "Tag value can't be empty."
             del filter_data["data"]["valueType"]
         filters.append(filter_data)
     for dataset in datasets:
-        queries.append({"datasetId": dataset, "filters": filters})
+        if without_any_objects:
+            queries.append(
+                {
+                    "datasetId": dataset,
+                    "filter": [{"field": "labelsCount", "operator": "=", "value": "0"}],
+                }
+            )
+        else:
+            queries.append({"datasetId": dataset, "filters": filters})
 
     return queries
 
@@ -53,13 +55,22 @@ def get_images(queries, with_limit=True):
 
         if ds_limit < 0:
             ds_limit = 0
-        ds_images, first_response = g.api.image.get_filtered_list(
-            ds_query["datasetId"],
-            ds_query["filters"],
-            force_metadata_for_links=False,
-            limit=ds_limit if with_limit or g.images_limit > 0 else None,
-            return_first_response=True,
-        )
+        if "filter" in ds_query.keys():
+            ds_images, first_response = g.api.image.get_list(
+                ds_query["datasetId"],
+                filters=ds_query["filter"],
+                force_metadata_for_links=False,
+                limit=ds_limit if with_limit or g.images_limit > 0 else None,
+                return_first_response=True,
+            )
+        else:
+            ds_images, first_response = g.api.image.get_filtered_list(
+                ds_query["datasetId"],
+                ds_query["filters"],
+                force_metadata_for_links=False,
+                limit=ds_limit if with_limit or g.images_limit > 0 else None,
+                return_first_response=True,
+            )
         if g.images_limit > 0:
             all_ds_filtered_items_len += len(ds_images)
         else:
@@ -75,9 +86,7 @@ def get_available_classes_and_tags(project_meta):
     DataJson()["available_tags"] = []
     DataJson()["available_classes"] = []
     for class_obj in project_meta["classes"]:
-        DataJson()["available_classes"].append(
-            {"name": class_obj["title"], "id": class_obj["id"]}
-        )
+        DataJson()["available_classes"].append({"name": class_obj["title"], "id": class_obj["id"]})
     for tag_obj in project_meta["tags"]:
         tag_dict = {
             "name": tag_obj["name"],

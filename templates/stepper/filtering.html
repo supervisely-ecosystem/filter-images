@@ -38,6 +38,7 @@
             </div>
             <div class="filter-fields">
                 <el-select
+                        v-if="filter.name != 'Without any objects'"
                         v-model="state.selected_filters[idx].name"
                         :disabled="state.current_step > data.steps.filtering"
                         @change="state.filter_to_change = idx;
