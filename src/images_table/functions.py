@@ -60,7 +60,7 @@ def show_preview(image_id):
     server_address = g.api.server_address.rstrip("/")
     image_path = image_info.path_original
     if sly.is_development():
-        img_url = f"{server_address}/{image_path.lstrip("/")}"
+        img_url = f"{server_address}/{image_path.lstrip('/')}"
     else:
         img_url = image_path
 
