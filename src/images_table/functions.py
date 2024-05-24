@@ -10,7 +10,10 @@ def fill_table(images_list):
     content = []
     for image_info in images_list:
         server_address = g.api.server_address.rstrip("/")
-        url = f"{server_address}/app/images2/?datasetId={image_info.dataset_id}&imageId={image_info.id}"
+        if sly.is_development():
+            url = f"{server_address}/app/images2/?datasetId={image_info.dataset_id}&imageId={image_info.id}"
+        else:
+            url = f"/app/images2/?datasetId={image_info.dataset_id}&imageId={image_info.id}"
         text = "open in annotaion tool"
         icon = "<i class='zmdi zmdi-open-in-new' style='margin-left: 5px'></i>"
         link = f'<a href="{url}" rel="noopener noreferrer" target="_blank">{text}{icon}</a>'
@@ -55,8 +58,11 @@ def show_preview(image_id):
     StateJson()["current_item_name"] = image_info.name
     ann = sly.Annotation.from_json(ann_json, g.project["project_meta"])
     server_address = g.api.server_address.rstrip("/")
-    image_path = image_info.path_original.lstrip("/")
-    img_url = f"{server_address}/{image_path}"
+    image_path = image_info.path_original
+    if sly.is_development():
+        img_url = f"{server_address}/{image_path.lstrip("/")}"
+    else:
+        img_url = image_path
 
     card_widgets.images_gallery.append(
         image_url=img_url, title=stringify_label_tags(ann.img_tags), annotation=ann
