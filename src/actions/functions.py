@@ -4,7 +4,7 @@ import supervisely as sly
 
 import src.sly_globals as g
 import src.actions.widgets as card_widgets
-
+import src.workflow as w
 
 def group_images_by_datasets_with_new_names():
     images = defaultdict(lambda: {"images": [], "names": []})
@@ -317,6 +317,7 @@ def apply_action(state):
     action = state["selected_action"]
     res_project_info = None
     res_dataset_msg = ""
+    w.workflow_input(g.api, g.project["project_id"])
     if action == "Copy / Move":
         project_id = None
         ds_ids = None
@@ -393,7 +394,7 @@ def apply_action(state):
             res_dataset_msg = DataJson()["ds_names"]
         elif len(g.project["dataset_ids"]) > 1:
             res_dataset_msg = "Several datasets"
-
+    w.workflow_output(g.api, res_project_info.id)
     add_metadata_to_project_readme(res_project_info, dataset_infos, action, state)
 
     return res_project_info, res_dataset_msg
