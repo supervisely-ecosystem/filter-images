@@ -10,7 +10,7 @@
     "project management"
   ],
   "description": "Filters images and provides results in selected format",
-  "docker_image": "supervisely/data-operations:6.73.483",
+  "docker_image": "supervisely/data-operations:6.73.486",
   "instance_version": "6.15.35",
   "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",
   "port": 8000,
