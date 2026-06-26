@@ -26,7 +26,7 @@ if sly.is_development():
 api = sly.Api.from_env()
 file_cache = sly.FileCache(name="FileCache", storage_root=app_cache_dir)
 app = FastAPI()
-sly_app = create()
+sly_app = create(auto_widget_id=True)
 
 TEAM_ID = sly.env.team_id()
 USER_ID = sly.env.user_id()

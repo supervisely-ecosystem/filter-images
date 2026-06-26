@@ -1,0 +1,10 @@
+[project]
+name = "filter-images"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "supervisely",
+]
+
+[tool.uv.sources]
+supervisely = { path = "../supervisely", editable = true }
