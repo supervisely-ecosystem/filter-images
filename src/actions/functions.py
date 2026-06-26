@@ -4,7 +4,7 @@ import supervisely as sly
 
 import src.sly_globals as g
 import src.actions.widgets as card_widgets
-
+import src.workflow as w
 
 def group_images_by_datasets_with_new_names():
     images = defaultdict(lambda: {"images": [], "names": []})
@@ -163,6 +163,7 @@ def delete_images():
 
 def assign_tag(state):
     tag_value = state["tag_to_assign_value"]
+    replace_existing_tag = state["assign_tag_is_existing"] == "true"
     if state["assign_tag_is_existing"] == "true":
         if state["tag_to_assign"] is None:
             raise ValueError("Select existing tag to assign value!")
@@ -195,15 +196,31 @@ def assign_tag(state):
                 break
 
     image_ids = {}
+    image_ids_with_tag = {}
     for image in g.images_list:
         if image.dataset_id not in image_ids.keys():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
+        if replace_existing_tag:
+            for tag in image.tags or []:
+                if tag.get("tagId") == tag_id:
+                    if image.dataset_id not in image_ids_with_tag.keys():
+                        image_ids_with_tag[image.dataset_id] = []
+                    image_ids_with_tag[image.dataset_id].append(image.id)
+                    break
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
+    image_ids_with_tag_len = sum(
+        [len(image_ids_per_ds) for image_ids_per_ds in image_ids_with_tag.values()]
+    )
     with card_widgets.action_progress(
-        message="Assigning tag to images...", total=image_ids_len
+        message="Assigning tag to images...", total=image_ids_len + image_ids_with_tag_len
     ) as pbar:
-        for image_ids_per_ds in image_ids.values():
+        for ds_id, image_ids_per_ds in image_ids.items():
+            existing_image_ids = image_ids_with_tag.get(ds_id, [])
+            if existing_image_ids:
+                g.api.advanced.remove_tags_from_images(
+                    [tag_id], existing_image_ids, progress_cb=pbar.update
+                )
             g.api.image.add_tag_batch(image_ids_per_ds, tag_id, tag_value, progress_cb=pbar.update)
 
 
@@ -362,6 +379,7 @@ def apply_action(state):
     action = state["selected_action"]
     res_project_info = None
     res_dataset_msg = ""
+    w.workflow_input(g.api, g.project["project_id"])
     if action == "Copy / Move":
         project_id = None
         ds_ids = None
@@ -434,7 +452,7 @@ def apply_action(state):
             res_dataset_msg = DataJson()["ds_names"]
         elif len(g.project["dataset_ids"]) > 1:
             res_dataset_msg = "Several datasets"
-
+    w.workflow_output(g.api, res_project_info.id)
     add_metadata_to_project_readme(res_project_info, dataset_infos, action, state)
 
     return res_project_info, res_dataset_msg

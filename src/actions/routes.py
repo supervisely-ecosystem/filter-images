@@ -140,11 +140,12 @@ def dst_project_selected(
 def tag_to_assign_selected(
     state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
 ):
+    tag_data = None
+    value_type = state["tag_to_assign_value_type"]
     if state["assign_tag_is_existing"] == "true":
         if state["tag_to_assign"] is None:
             return
         new_tag_id = state["tag_to_assign"]
-        tag_data = None
         for tag in DataJson()["available_tags"]:
             if tag["id"] == new_tag_id:
                 tag_data = tag
@@ -154,19 +155,19 @@ def tag_to_assign_selected(
             supervisely.logger.warn(f"Not found tag with id: {new_tag_id}")
             tag_data = DataJson()["available_tags"][0]
 
-        StateJson()["tag_to_assign_value_type"] = tag_data["value_type"]
+        value_type = tag_data["value_type"]
+        StateJson()["tag_to_assign_value_type"] = value_type
 
-    if state["tag_to_assign_value_type"] == str(supervisely.TagValueType.ANY_NUMBER):
+    if value_type == str(supervisely.TagValueType.ANY_NUMBER):
         StateJson()["tag_to_assign_value"] = 0
-    elif state["tag_to_assign_value_type"] == str(supervisely.TagValueType.ANY_STRING):
+    elif value_type == str(supervisely.TagValueType.ANY_STRING):
         StateJson()["tag_to_assign_value"] = ""
-    elif state["tag_to_assign_value_type"] == str(
-        supervisely.TagValueType.ONEOF_STRING
-    ):
+    elif value_type == str(supervisely.TagValueType.ONEOF_STRING):
         # TODO: bug when new tag (currently not implemented)
-        StateJson()["tag_to_assign_values"] = tag_data["values"]
-        StateJson()["tag_to_assign_value"] = state["tag_to_assign_values"][0]
-    elif state["tag_to_assign_value_type"] == str(supervisely.TagValueType.NONE):
+        values = tag_data["values"]
+        StateJson()["tag_to_assign_values"] = values
+        StateJson()["tag_to_assign_value"] = values[0]
+    elif value_type == str(supervisely.TagValueType.NONE):
         StateJson()["tag_to_assign_value"] = None
     StateJson().send_changes()
 
