@@ -23,6 +23,8 @@
 
 App filters images from a project and allows you to copy, move, delete images and assign or remove tags.
 
+> Since version `1.4.5` the app supports nested datasets: you can select, filter and output data from nested datasets, and the source project structure is preserved when copying or moving images.
+
 # How to Use
 
 1. Select project and datasets
