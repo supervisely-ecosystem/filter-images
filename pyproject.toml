@@ -8,3 +8,22 @@ dependencies = [
 
 [tool.uv.sources]
 supervisely = { path = "../supervisely", editable = true }
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"  # runtime: supervisely/base-py-sdk-hardened (Python 3.14)
+src = [".", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "BLE"]
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy app code kept as is on the hardened-image move (see MODERNIZE.md): package __init__ files
+# register routes through star imports, route handlers share names (registered by decorators),
+# FastAPI `Depends` defaults, import order with side effects, long lines.
+"src/**" = ["F401", "F403", "F405", "F811", "F541", "B008", "B904", "BLE001", "E402", "E501", "E713", "I001", "W291", "W292"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+markers = ["contract: runs the app against a real Supervisely instance (opt-in, see tests/contract)"]
+filterwarnings = ["ignore::SyntaxWarning", "ignore::DeprecationWarning"]

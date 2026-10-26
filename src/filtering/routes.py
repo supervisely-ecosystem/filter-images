@@ -12,7 +12,6 @@ from supervisely.app.widgets import ElementButton
 from supervisely import logger
 
 import src.sly_globals as g
-import asyncio
 
 
 def apply_filters_long(state: supervisely.app.StateJson):
@@ -66,9 +65,8 @@ def filtering_finished(future):
 def apply_filters_clicked(
     state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
 ):
-    my_future = g.loop.run_in_executor(g.executor, apply_filters_long, state)
-    task = asyncio.ensure_future(my_future, loop=g.loop)
-    task.add_done_callback(filtering_finished)
+    future = g.executor.submit(apply_filters_long, state)
+    future.add_done_callback(filtering_finished)
 
 
 @g.app.post("/add_filter/")

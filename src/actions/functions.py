@@ -58,46 +58,63 @@ def recreate_source_structure(dst_project_id):
     return src_to_dst, created_infos
 
 
-def remove_empty_datasets(dataset_infos):
-    """Remove created datasets that ended up without images, bottom-up, without removing
-    a dataset that still has non-empty descendants (keeps the preserved hierarchy intact).
+def _listed_empty(project_id, ds_id):
+    """Authoritative emptiness check: list the dataset's own images and its child datasets.
+
+    `DatasetInfo.images_count` is a denormalized counter and must not decide a deletion: on the dev instance it
+    read 0 for a dataset about 7 s after 3 images had been copied into it (see DATA_LOSS.md).
     """
-    refreshed = {info.id: g.api.dataset.get_info_by_id(info.id) for info in dataset_infos}
+    if g.api.image.get_list(ds_id, limit=1, force_metadata_for_links=False):
+        return False
+    return not g.api.dataset.get_list(project_id, parent_id=ds_id)
+
+
+def remove_empty_datasets(ds_ids, written, created_ids):
+    """Remove datasets that this run created and wrote no images into, bottom-up.
+
+    A dataset is removed only if it is in `created_ids`, `written` (images this run copied/moved into each
+    dataset) has nothing for it, no other dataset of this run is still nested in it, and an actual listing shows
+    neither images nor child datasets. Pre-existing datasets ("existing dataset" destination) are never removed.
+    Returns the infos of the datasets that remain.
+    """
+    infos = {ds_id: g.api.dataset.get_info_by_id(ds_id) for ds_id in ds_ids}
     removed = set()
     changed = True
     while changed:
         changed = False
-        for ds_id, info in refreshed.items():
-            if ds_id in removed:
+        for ds_id, info in infos.items():
+            if ds_id in removed or ds_id not in created_ids or written.get(ds_id, 0) > 0:
                 continue
             has_alive_child = any(
-                other.parent_id == ds_id and other_id not in removed
-                for other_id, other in refreshed.items()
+                other.parent_id == ds_id and other_id not in removed for other_id, other in infos.items()
             )
-            if info.images_count == 0 and not has_alive_child:
+            if not has_alive_child and _listed_empty(info.project_id, ds_id):
                 g.api.dataset.remove(ds_id)
                 removed.add(ds_id)
                 changed = True
-    return [info for ds_id, info in refreshed.items() if ds_id not in removed]
+    return [info for ds_id, info in infos.items() if ds_id not in removed]
 
 
 # @sly.timeit
-def copy_images(ds_ids, ds_mapping=None):
+def copy_images(ds_ids, ds_mapping=None, created_ids=()):
     images = group_images_by_datasets_with_new_names()
     images_len = len(g.images_list)
+    written = defaultdict(int)
     with card_widgets.action_progress(message="Copying images...", total=images_len) as pbar:
         for src_ds_id, images_per_ds in images.items():
+            dst_ds_id = ds_mapping[src_ds_id] if ds_mapping is not None else ds_ids[0]
             g.api.image.copy_batch_optimized(
                 src_ds_id,
                 images_per_ds["images"],
-                ds_mapping[src_ds_id] if ds_mapping is not None else ds_ids[0],
+                dst_ds_id,
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
                 skip_validation=True,
                 save_source_date=False,
             )
-    return remove_empty_datasets([g.api.dataset.get_info_by_id(ds_id) for ds_id in ds_ids])
+            written[dst_ds_id] += len(images_per_ds["images"])
+    return remove_empty_datasets(ds_ids, written, created_ids)
 
 
 # Old implementation for speed measurement
@@ -116,22 +133,25 @@ def copy_images(ds_ids, ds_mapping=None):
 
 
 # @sly.timeit
-def move_images(ds_ids, ds_mapping=None):
+def move_images(ds_ids, ds_mapping=None, created_ids=()):
     images = group_images_by_datasets_with_new_names()
     images_len = len(g.images_list)
+    written = defaultdict(int)
     with card_widgets.action_progress(message="Moving images...", total=images_len) as pbar:
         for src_ds_id, images_per_ds in images.items():
+            dst_ds_id = ds_mapping[src_ds_id] if ds_mapping is not None else ds_ids[0]
             g.api.image.move_batch_optimized(
                 src_ds_id,
                 images_per_ds["images"],
-                ds_mapping[src_ds_id] if ds_mapping is not None else ds_ids[0],
+                dst_ds_id,
                 with_annotations=True,
                 progress_cb=pbar.update,
                 dst_names=images_per_ds["names"],
                 skip_validation=True,
                 save_source_date=False,
             )
-    return remove_empty_datasets([g.api.dataset.get_info_by_id(ds_id) for ds_id in ds_ids])
+            written[dst_ds_id] += len(images_per_ds["images"])
+    return remove_empty_datasets(ds_ids, written, created_ids)
 
 
 # Old implementation for speed measurement
@@ -183,8 +203,14 @@ def assign_tag(state):
             possible_values=possible_values,
             applicable_to=state["tag_to_assign_applicable_to"],
         )
-        g.project["project_meta"] = g.project["project_meta"].add_tag_meta(new_tag_meta)
-        g.api.project.update_meta(g.project["project_id"], g.project["project_meta"].to_json())
+        # Add the tag to the project's CURRENT meta: the copy loaded when the project was selected may miss
+        # classes/tags added since, and writing it back would delete them with all their labels (DATA_LOSS.md).
+        current_meta = sly.ProjectMeta.from_json(g.api.project.get_meta(g.project["project_id"]))
+        if current_meta.get_tag_meta(new_tag_meta.name) is not None:
+            raise ValueError(
+                f"Tag '{new_tag_meta.name}' already exists in the project. Choose it as an existing tag instead."
+            )
+        g.api.project.update_meta(g.project["project_id"], current_meta.add_tag_meta(new_tag_meta).to_json())
 
         project_meta_json = g.api.project.get_meta(g.project["project_id"])
         g.project["project_meta"] = sly.ProjectMeta.from_json(project_meta_json)
@@ -421,11 +447,13 @@ def apply_action(state):
                 g.api.dataset.get_info_by_name(project_id, state["selectedDatasetName"])
             ]
         ds_ids = [ds_info.id for ds_info in dataset_infos]
+        # Only datasets created by this run may be cleaned up; an existing destination dataset is never removed.
+        created_ids = set(ds_ids) if state["dstDatasetMode"] in ("newDataset", "similarDatasets") else set()
 
         if state["move_or_copy"] == "copy":
-            dataset_infos = copy_images(ds_ids, ds_mapping)
+            dataset_infos = copy_images(ds_ids, ds_mapping, created_ids)
         elif state["move_or_copy"] == "move":
-            dataset_infos = move_images(ds_ids, ds_mapping)
+            dataset_infos = move_images(ds_ids, ds_mapping, created_ids)
 
     elif action == "Delete":
         delete_images()
