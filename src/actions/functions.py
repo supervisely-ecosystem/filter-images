@@ -5,6 +5,7 @@ import supervisely as sly
 import src.sly_globals as g
 import src.actions.widgets as card_widgets
 import src.workflow as w
+import src.sly_functions as sly_functions
 
 def group_images_by_datasets_with_new_names():
     images = defaultdict(lambda: {"images": [], "names": []})
@@ -257,7 +258,8 @@ def remove_tags_from_images():
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
-    project_meta_tags = g.project["project_meta"].tag_metas
+    # Current meta: tags created after the project was selected must be removed too.
+    project_meta_tags = sly_functions.get_project_meta(refresh=True).tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
     with card_widgets.action_progress(
         message="Removing all tags from images...", total=image_ids_len
@@ -278,7 +280,7 @@ def remove_specific_tag_from_images(state):
             image_ids[image.dataset_id] = []
         image_ids[image.dataset_id].append(image.id)
     image_ids_len = sum([len(image_ids_per_ds) for image_ids_per_ds in image_ids.values()])
-    project_meta_tags = g.project["project_meta"].tag_metas
+    project_meta_tags = sly_functions.get_project_meta(refresh=True).tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
     if not tag_id in project_meta_tags:
         raise ValueError("Tag is not found in project!")
@@ -295,7 +297,8 @@ def remove_specific_tag_from_images(state):
 def remove_specific_tag_from_objects(state):
     if state["tag_to_remove"] is None:
         raise ValueError("Select tag to remove!")
-    project_meta_tags = g.project["project_meta"].tag_metas
+    # Current meta: the annotations may use classes/tags created after the project was selected.
+    project_meta_tags = sly_functions.get_project_meta(refresh=True).tag_metas
     project_meta_tags = [tag.sly_id for tag in project_meta_tags]
     tag_meta_id = state["tag_to_remove"]
     if not tag_meta_id in project_meta_tags:
@@ -311,7 +314,7 @@ def remove_specific_tag_from_objects(state):
         for batch_ids in sly.batched(image_ids_per_ds):
             ann_jsons = g.api.annotation.download_json_batch(ds_id, batch_ids)
             for ann_json in ann_jsons:
-                ann = sly.Annotation.from_json(ann_json, g.project["project_meta"])
+                ann = sly_functions.annotation_from_json(ann_json)
                 for label in ann.labels:
                     tags = [tag for tag in label.tags if tag.meta.sly_id == tag_meta_id]
                     if len(tags) > 0:

@@ -20,38 +20,36 @@ def apply_filters_long(state: supervisely.app.StateJson):
     try:
         query = card_functions.build_queries_from_filters(state)
         g.images_list = card_functions.get_images(query)
-    except Exception as e:
-        StateJson()["filtering"] = False
-        StateJson().send_changes()
-        raise HTTPException(500, repr(e))
-    if len(g.images_list) == 0:
-        StateJson()["empty_list"] = True
-        StateJson()["filtering"] = False
-        StateJson().send_changes()
-        return
-    else:
+        if len(g.images_list) == 0:
+            StateJson()["empty_list"] = True
+            return
         StateJson()["empty_list"] = False
-    if DataJson()["images_list_len"] > g.TABLE_IMAGES_LIMIT:
-        table_images = g.images_list[: g.TABLE_IMAGES_LIMIT]
-        StateJson()["show_images_limit_warn"] = True
-    else:
-        StateJson()["show_images_limit_warn"] = False
-        table_images = g.images_list
-    table_functions.fill_table(table_images)
-    first_row = table_widgets.images_table.get_json_data()["table_data"]["data"][0]
-    id_col_index = table_widgets.images_table.get_json_data()["table_data"][
-        "columns"
-    ].index("id")
-    table_functions.show_preview(first_row[id_col_index])
-    DataJson().send_changes()
-    StateJson()["dstDatasetName"] = "ds0"
-    StateJson()["filtering"] = False
-    StateJson()["apply_text"] = f'APPLY TO {DataJson()["images_list_len"]} IMAGES'
+        if DataJson()["images_list_len"] > g.TABLE_IMAGES_LIMIT:
+            table_images = g.images_list[: g.TABLE_IMAGES_LIMIT]
+            StateJson()["show_images_limit_warn"] = True
+        else:
+            StateJson()["show_images_limit_warn"] = False
+            table_images = g.images_list
+        table_functions.fill_table(table_images)
+        first_row = table_widgets.images_table.get_json_data()["table_data"]["data"][0]
+        id_col_index = table_widgets.images_table.get_json_data()["table_data"][
+            "columns"
+        ].index("id")
+        # Logs and shows its own errors; a failed preview does not stop the filtering step.
+        table_functions.show_preview(first_row[id_col_index])
+        DataJson().send_changes()
+        StateJson()["dstDatasetName"] = "ds0"
+        StateJson()["apply_text"] = f'APPLY TO {DataJson()["images_list_len"]} IMAGES'
 
-    StateJson()["current_step"] += 2
-    StateJson()["collapsed_steps"]["images_table"] = False
-    StateJson()["collapsed_steps"]["actions"] = False
-    StateJson().send_changes()
+        StateJson()["current_step"] += 2
+        StateJson()["collapsed_steps"]["images_table"] = False
+        StateJson()["collapsed_steps"]["actions"] = False
+    except Exception as e:
+        raise HTTPException(500, repr(e))
+    finally:
+        # Always leave the loading state, whatever failed above.
+        StateJson()["filtering"] = False
+        StateJson().send_changes()
 
 
 def filtering_finished(future):

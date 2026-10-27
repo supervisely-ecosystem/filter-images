@@ -74,6 +74,18 @@ needs a higher `instance_version` (product decision). CI: `release.yml` only cal
   See `DATA_LOSS.md` (root cause, reproduction, production risk, ecosystem sweep) and
   `tests/unit/test_remove_empty_datasets.py`.
 
+- **Preview hangs on a class/tag created after the project was selected** (also in the published app). `show_preview`
+  parsed the annotation with `g.project["project_meta"]`, read once at project selection; a label of a newer class
+  (or a newer tag) raised, the error escaped, and "Apply filters" never cleared `filtering` (gallery stuck loading,
+  step 3 never opened); a table click left `loading_preview` set, which blocks every later click.
+  Now the annotation is parsed with the cached meta and, if that fails, once more with the meta re-read from the
+  server (`sly_functions.annotation_from_json`; no extra request when the cache fits). Preview errors are logged and
+  shown above the preview, and both loading flags are cleared in `finally`. The tag-removal actions read the current
+  meta: "Remove all tags" missed tags created after selection, and "Remove specific tag (from objects)" failed on
+  newer classes. Copy / Move does not use the cached meta (the SDK merges the current metas); Assign tag already
+  reads the current meta. Not changed: the filter dropdowns still list the classes/tags of the selection time
+  (re-select the project to see new ones). Tests: `tests/unit/test_preview_stale_meta.py`.
+
 ## Found, not fixed (pre-existing, outside a mechanical move)
 
 - Destination dataset message lists datasets in set-iteration order (varies between runs); cosmetic.
