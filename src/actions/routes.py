@@ -14,7 +14,6 @@ import src.sly_functions as f
 from supervisely import logger
 
 import src.sly_globals as g
-import asyncio
 
 
 def apply_action_long(state: supervisely.app.StateJson):
@@ -56,9 +55,8 @@ def action_finished(future):
 def apply_action_clicked(
     state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request),
 ):
-    my_future = g.loop.run_in_executor(g.executor, apply_action_long, state)
-    task = asyncio.ensure_future(my_future, loop=g.loop)
-    task.add_done_callback(action_finished)
+    future = g.executor.submit(apply_action_long, state)
+    future.add_done_callback(action_finished)
 
 
 @g.app.post("/select_dst_project/")

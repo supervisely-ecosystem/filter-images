@@ -1,5 +1,6 @@
 import src.images_table.widgets as card_widgets
 import src.sly_globals as g
+import src.sly_functions as sly_functions
 from supervisely.app import DataJson, StateJson
 
 import supervisely as sly
@@ -50,22 +51,31 @@ def stringify_label_tags(tags):
 
 
 def show_preview(image_id):
-    card_widgets.images_gallery.loading = True
-    card_widgets.images_gallery.clean_up()
+    """Show the image with its annotation in the gallery.
 
-    image_info = g.api.image.get_info_by_id(image_id, force_metadata_for_links=False)
-    ann_json = g.api.annotation.download_json(image_id)
-    StateJson()["current_item_name"] = image_info.name
-    ann = sly.Annotation.from_json(ann_json, g.project["project_meta"])
-    server_address = g.api.server_address.rstrip("/")
-    image_path = image_info.path_original
-    if sly.is_development():
-        img_url = f"{server_address}/{image_path.lstrip('/')}"
-    else:
-        img_url = image_path
+    Never leaves the gallery loading: a failure is logged and shown above the preview (`preview_error`),
+    and the caller (Apply filters / a table click) carries on.
+    """
+    gallery = card_widgets.images_gallery
+    gallery.loading = True
+    StateJson()["preview_error"] = ""
+    try:
+        gallery.clean_up()
+        image_info = g.api.image.get_info_by_id(image_id, force_metadata_for_links=False)
+        ann_json = g.api.annotation.download_json(image_id)
+        StateJson()["current_item_name"] = image_info.name
+        # The meta cached at project selection misses classes/tags created since; refreshed when needed.
+        ann = sly_functions.annotation_from_json(ann_json)
+        server_address = g.api.server_address.rstrip("/")
+        image_path = image_info.path_original
+        if sly.is_development():
+            img_url = f"{server_address}/{image_path.lstrip('/')}"
+        else:
+            img_url = image_path
 
-    card_widgets.images_gallery.append(
-        image_url=img_url, title=stringify_label_tags(ann.img_tags), annotation=ann
-    )
-
-    card_widgets.images_gallery.loading = False
+        gallery.append(image_url=img_url, title=stringify_label_tags(ann.img_tags), annotation=ann)
+    except Exception as e:
+        sly.logger.warning(f"Failed to show preview of image {image_id}: {e!r}", exc_info=True)
+        StateJson()["preview_error"] = f"Failed to show preview of image {image_id}: {e}"
+    finally:
+        gallery.loading = False

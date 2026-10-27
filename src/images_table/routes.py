@@ -18,9 +18,12 @@ def images_table_cell_clicked(state: StateJson = Depends(StateJson.from_request)
         return 
     StateJson()['loading_preview'] = True
     StateJson().send_changes()
-    card_functions.show_preview(selected_cell['row_data']['id'])
-    StateJson()['loading_preview'] = False
-    DataJson().send_changes()
-    StateJson().send_changes()
+    try:
+        card_functions.show_preview(selected_cell['row_data']['id'])
+    finally:
+        # Always unlock: the page skips every later click while loading_preview is set.
+        StateJson()['loading_preview'] = False
+        DataJson().send_changes()
+        StateJson().send_changes()
 
 

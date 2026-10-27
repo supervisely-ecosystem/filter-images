@@ -71,8 +71,9 @@ StateJson()["collapsed_steps"] = {
 
 images_limit = 0
 
-import asyncio
-import concurrent
+import concurrent.futures
 
+# Long-running handlers (apply filters / apply action) run here so the HTTP request returns at once.
+# No module-level event loop: asyncio.get_event_loop() raises on Python 3.14 when uvicorn imports
+# the app before starting its loop.
 executor = concurrent.futures.ThreadPoolExecutor()
-loop = asyncio.get_event_loop()
